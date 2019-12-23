@@ -1,6 +1,7 @@
 #! /home/diogo/.sdkman/candidates/groovy/2.5.8/bin/groovy
 
 import groovy.json.JsonSlurperClassic
+import com.cloudbees.groovy.cps.NonCPS
 
 def call(body) {
     // evaluate the body block, and collect configuration into the object
@@ -18,6 +19,7 @@ def call(body) {
     }
 }
 
+@NonCPS
 def getResult(url, token) {
     echo "${url}"
 	
