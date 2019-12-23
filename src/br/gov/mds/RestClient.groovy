@@ -72,7 +72,9 @@ class RestClient {
 			writer.close();
 			os.close();
 			int responseCode = connection.getResponseCode();
-
+			
+			println "Response Code: " + responseCode
+			
 			if (responseCode == HttpURLConnection.HTTP_OK) {
 				String line;
 				BufferedReader br=new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -84,7 +86,8 @@ class RestClient {
 				response="";
 			}
 		} catch (Exception e) {
-			println e.printStackTrace();
+			println e
+			e.printStackTrace();
 		} finally {
 			connection.disconnect();
 		}
