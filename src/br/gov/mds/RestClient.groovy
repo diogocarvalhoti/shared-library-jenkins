@@ -24,7 +24,7 @@ class RestClient {
 		params.put("target_branch", targetBranch);
 		params.put("title", "Teste MR");
 		
-		String uri = this.baseUrl.concat("/api/v4/projects/").concat(idProject).concat("merge_requests")
+		String uri = this.baseUrl.concat("/api/v4/projects/").concat(idProject.toString()).concat("merge_requests")
 		
 		post(uri, params)
 	}
