@@ -28,11 +28,12 @@ def getResult(url, token) {
 	
     HttpURLConnection connection = url.openConnection()
     if (token != null && token.length() > 0) {
-        connection.setRequestProperty("Private-Token:", "${token}")
+        connection.setRequestProperty("Private-Token:", token)
     }
 	
     connection.setRequestMethod("GET")
     connection.setDoInput(true)
+	connection.setDoOutput(true)
     def rs = null
     try {
         connection.connect()
