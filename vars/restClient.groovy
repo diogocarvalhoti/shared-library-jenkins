@@ -3,27 +3,16 @@
 import groovy.json.JsonSlurperClassic
 import com.cloudbees.groovy.cps.NonCPS
 
-def call(body) {
-    // evaluate the body block, and collect configuration into the object
-    def config = [:]
-    body.resolveStrategy = Closure.DELEGATE_FIRST
-    body.delegate = config
-    body()
 
-    if (config.url == null) {
-        throw new RuntimeException("No URL found")
-    }
 
-    retry(3) {
-        return getResult(config.url, config.token)
-    }
-}
 
-def getIdProject(body) {
-	Map resultMap = call(body)
+def getIdProject(url, token) {
 	return resultMap.get("id")
 }
 
+def createMR(url, token, sourceBranch, targetBranch) {
+	
+}
 
 @NonCPS
 def getResult(url, token) {
