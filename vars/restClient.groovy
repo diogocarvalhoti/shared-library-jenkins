@@ -7,11 +7,12 @@ public class RestClient {
 	private String token;
 
 
-	def call(baseUrl, token) {
+	def init(baseUrl, token) {
 		println("TESTEEEE")
 
 		this.baseUrl = baseUrl;
 		this.token = token;
+		return this;
 	}
 
 	def getIdProject(String namespace) {
