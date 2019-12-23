@@ -7,19 +7,19 @@ public class RestClient {
 	private String token;
 
 
-	public RestClient(baseUrl, token) {
+	def call(baseUrl, token) {
 		println("TESTEEEE")
 
 		this.baseUrl = baseUrl;
 		this.token = token;
 	}
 
-	public Integer getIdProject(String namespace) {
+	def getIdProject(String namespace) {
 		Map resultMap = get(this.baseUrl.concat("/api/v4/projects/").concat(namespace))
 		return resultMap.get("id")
 	}
 
-	public String createMR(Integer idProject, String sourceBranch, String targetBranch) {
+	def createMR(Integer idProject, String sourceBranch, String targetBranch) {
 		Map<String, String> params = new HashMap();
 		params.put("source_branch", sourceBranch);
 		params.put("target_branch", targetBranch);
@@ -31,7 +31,7 @@ public class RestClient {
 	}
 
 	@NonCPS
-	private Map get(String uri) {
+	def get(String uri) {
 		HttpURLConnection connection = new URL(uri).openConnection()
 		connection.setRequestProperty("Private-Token", this.token)
 		connection.setRequestMethod("GET")
@@ -50,7 +50,7 @@ public class RestClient {
 	}
 
 	@NonCPS
-	private String post(String uri, Map params) {
+	def post(String uri, Map params) {
 		println "Executando POST: " + uri
 
 		String response = "";
@@ -93,7 +93,7 @@ public class RestClient {
 	}
 
 	@NonCPS
-	private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException{
+	def getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException{
 		StringBuilder result = new StringBuilder();
 		boolean first = true;
 		for(Map.Entry<String, String> entry : params.entrySet()){
