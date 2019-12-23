@@ -58,6 +58,7 @@ def post(String uri, Map params) {
 		connection.setReadTimeout(15000);
 		connection.setConnectTimeout(15000);
 		connection.setRequestMethod("POST");
+		connection.setRequestProperty("Private-Token", this.token)
 		connection.setDoInput(true);
 		connection.setDoOutput(true);
 
