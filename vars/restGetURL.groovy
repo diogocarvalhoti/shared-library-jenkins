@@ -11,22 +11,17 @@ def call(body) {
     body()
 
     if (config.url == null) {
-        error "No URL found"
+        throw new RuntimeException("No URL found")
     }
 
-    retry(1) {
+    retry(3) {
         return getResult(config.url, config.token)
     }
 }
 
 @NonCPS
 def getResult(url, token) {
-    echo "${url}"
-	echo "${token}"
-	
     HttpURLConnection connection = url.openConnection()
-	
-
 	
     if (token != null && token.length() > 0) {
         connection.setRequestProperty("Private-Token", "${token}")
@@ -38,17 +33,11 @@ def getResult(url, token) {
     def rs = null
     try {
         connection.connect()
-		
-		println connection
-		
 		def responseCode = connection.getResponseCode()
-		
 		println "Response Code: "+responseCode
-		
         rs = new JsonSlurperClassic().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
     } finally {
         connection.disconnect()
     }
-    echo 'returning'
     return rs
 }
