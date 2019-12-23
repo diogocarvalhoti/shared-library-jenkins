@@ -38,7 +38,7 @@ def getResult(url, token) {
     def rs = null
     try {
         connection.connect()
-		println connection.getInputStream()
+		println connection.getContent()
         rs = new JsonSlurperClassic().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
     } finally {
         connection.disconnect()
