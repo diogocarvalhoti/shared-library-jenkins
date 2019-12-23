@@ -26,7 +26,7 @@ def getResult(url, token) {
 	
     HttpURLConnection connection = url.openConnection()
 	
-	println connection
+
 	
     if (token != null && token.length() > 0) {
         connection.setRequestProperty("Private-Token", "${token}")
@@ -38,6 +38,9 @@ def getResult(url, token) {
     def rs = null
     try {
         connection.connect()
+		
+		println connection
+		
 		println connection.getContent()
         rs = new JsonSlurperClassic().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
     } finally {
