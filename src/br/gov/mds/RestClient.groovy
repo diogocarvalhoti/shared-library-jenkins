@@ -9,6 +9,7 @@ class RestClient {
 	private String token;
 
 	public RestClient(baseUrl, token) {
+		System.out.println("TESTEEEE")
 		this.baseUrl = baseUrl;
 		this.token = token;
 	}
