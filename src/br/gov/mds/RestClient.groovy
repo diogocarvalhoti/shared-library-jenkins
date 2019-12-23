@@ -38,6 +38,8 @@ class RestClient {
 
 	@NonCPS
 	private Map get(String uri) {
+		throw new RuntimeException(e);
+		
 		HttpURLConnection connection = new URL(uri).openConnection()
 		connection.setRequestProperty("Private-Token", this.token)
 		connection.setRequestMethod("GET")
