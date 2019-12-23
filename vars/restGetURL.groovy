@@ -26,7 +26,7 @@ def getResult(url, token) {
 	
     HttpURLConnection connection = url.openConnection()
 	
-	echo connection
+	println connection
 	
     if (token != null && token.length() > 0) {
         connection.setRequestProperty("Private-Token", "${token}")
