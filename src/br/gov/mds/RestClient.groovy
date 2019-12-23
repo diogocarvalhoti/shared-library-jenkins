@@ -93,8 +93,7 @@ class RestClient {
 				response="";
 			}
 		} catch (Exception e) {
-			println e
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} finally {
 			connection.disconnect();
 		}
