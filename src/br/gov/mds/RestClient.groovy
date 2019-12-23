@@ -50,6 +50,8 @@ class RestClient {
 
 	@NonCPS
 	private String post(String uri, Map params) {
+		println "Executando POST: " + uri
+		
 		String response = "";
 		HttpURLConnection connection = new URL(uri).openConnection();
 		connection.setReadTimeout(15000);
@@ -71,7 +73,7 @@ class RestClient {
 			os.close();
 			int responseCode = connection.getResponseCode();
 
-			if (responseCode == HttpsURLConnection.HTTP_OK) {
+			if (responseCode == HttpURLConnection.HTTP_OK) {
 				String line;
 				BufferedReader br=new BufferedReader(new InputStreamReader(connection.getInputStream()));
 				while ((line=br.readLine()) != null) {
