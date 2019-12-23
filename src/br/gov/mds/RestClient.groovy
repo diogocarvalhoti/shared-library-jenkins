@@ -13,8 +13,8 @@ class RestClient {
 		this.token = token;
 	}
 	
-	public Integer getIdProject(String namespace, String nameProject) {
-		Map resultMap = get(this.baseUrl.concat("/api/v4/projects/gcm_cgsi%2Fsispaa"))
+	public Integer getIdProject(String namespace) {
+		Map resultMap = get(this.baseUrl.concat("/api/v4/projects/").concat(namespace))
 		return resultMap.get("id")
 	}
 	
