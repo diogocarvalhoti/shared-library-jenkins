@@ -8,7 +8,7 @@ public class RestClient {
 
 
 	def init(baseUrl, token) {
-		println("TESTEEEE")
+		println "TESTEEEE"
 
 		this.baseUrl = baseUrl;
 		this.token = token;
