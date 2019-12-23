@@ -8,8 +8,12 @@ class RestClient {
 	private String baseUrl;
 	private String token;
 
+	def out = getBinding().out;
+	
 	public RestClient(baseUrl, token) {
-		System.out.println("TESTEEEE")
+		
+		println("TESTEEEE")
+		
 		this.baseUrl = baseUrl;
 		this.token = token;
 	}
