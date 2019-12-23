@@ -19,6 +19,12 @@ def call(body) {
     }
 }
 
+def getIdProject(body) {
+	Map resultMap = call(body)
+	return resultMap.get("id")
+}
+
+
 @NonCPS
 def getResult(url, token) {
     HttpURLConnection connection = url.openConnection()
