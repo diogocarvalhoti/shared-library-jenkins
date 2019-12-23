@@ -1,5 +1,7 @@
 package br.gov.mds
 
+import java.util.logging.Logger
+
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonSlurperClassic
 
@@ -7,9 +9,11 @@ class RestClient {
 
 	private String baseUrl;
 	private String token;
+	
+	private Logger logger = Logger.getLogger(RestClient.getSimpleName())
 
 	public RestClient(baseUrl, token) {
-		
+		logger.info("TESTEEEEEEE")
 		println("TESTEEEE")
 		
 		this.baseUrl = baseUrl;
