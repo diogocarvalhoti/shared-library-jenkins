@@ -22,18 +22,22 @@ def call(body) {
 @NonCPS
 def getResult(url, token) {
     echo "${url}"
+	echo "${token}"
 	
     HttpURLConnection connection = url.openConnection()
     if (token != null && token.length() > 0) {
         connection.setRequestProperty("Private-Token:", "${token}")
     }
+	
     connection.setRequestMethod("GET")
     connection.setDoInput(true)
     def rs = null
     try {
         connection.connect()
         rs = new JsonSlurperClassic().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
-    } finally {
+    } catch (Exception e) {
+		println e
+	} finally {
         connection.disconnect()
     }
     echo 'returning'
