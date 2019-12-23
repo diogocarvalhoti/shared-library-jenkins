@@ -6,8 +6,6 @@ def token;
 
 
 def init(baseUrl, token) {
-	println "TESTEEEE";
-
 	this.baseUrl = baseUrl;
 	this.token = token;
 	return this;
@@ -18,11 +16,11 @@ def getIdProject(String namespace) {
 	return resultMap.get("id")
 }
 
-def createMR(Integer idProject, String sourceBranch, String targetBranch) {
+def createMR(Integer idProject, String sourceBranch) {
 	Map<String, String> params = new HashMap();
 	params.put("source_branch", sourceBranch);
-	params.put("target_branch", targetBranch);
-	params.put("title", "Teste MR");
+	params.put("target_branch", "develop");
+	params.put("title", "WIP: Teste MR");
 
 	String uri = this.baseUrl.concat("/api/v4/projects/").concat(idProject.toString()).concat("/merge_requests")
 
@@ -50,8 +48,6 @@ def get(String uri) {
 
 @NonCPS
 def post(String uri, Map params) {
-	println "Executando POST: " + uri
-
 	String response = "";
 	try {
 		HttpURLConnection connection = new URL(uri).openConnection();
@@ -73,8 +69,6 @@ def post(String uri, Map params) {
 		writer.close();
 		os.close();
 		int responseCode = connection.getResponseCode();
-
-		println "Response Code: " + responseCode
 
 		if (responseCode == HttpURLConnection.HTTP_OK) {
 			String line;
