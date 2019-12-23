@@ -14,8 +14,6 @@ def call(body) {
         error "No URL found"
     }
 
-	println config.url
-	
     retry(1) {
         return getResult(config.url, config.token)
     }
@@ -27,6 +25,9 @@ def getResult(url, token) {
 	echo "${token}"
 	
     HttpURLConnection connection = url.openConnection()
+	
+	echo connection
+	
     if (token != null && token.length() > 0) {
         connection.setRequestProperty("Private-Token", "${token}")
     }
@@ -38,9 +39,7 @@ def getResult(url, token) {
     try {
         connection.connect()
         rs = new JsonSlurperClassic().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
-    } catch (Exception e) {
-		println e.printStackTrace()
-	} finally {
+    } finally {
         connection.disconnect()
     }
     echo 'returning'
