@@ -24,7 +24,11 @@ class RestClient {
 	}
 	
 	@NonCPS
-	private Map get(url) {
+	private Map get(uri) {
+		URL url = new URL(url);
+		println this.token
+		println url
+		
 		HttpURLConnection connection = url.openConnection()
 		
 		println this.token
