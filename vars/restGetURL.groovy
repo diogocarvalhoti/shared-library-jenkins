@@ -41,7 +41,10 @@ def getResult(url, token) {
 		
 		println connection
 		
-		println connection.getContent()
+		def responseCode = connection.getResponseCode()
+		
+		println "Response Code: "+responseCode
+		
         rs = new JsonSlurperClassic().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
     } finally {
         connection.disconnect()
