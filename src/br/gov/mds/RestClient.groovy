@@ -18,7 +18,7 @@ class RestClient {
 		return resultMap.get("id")
 	}
 
-	public void createMR(Integer idProject, String sourceBranch, String targetBranch) {
+	public String createMR(Integer idProject, String sourceBranch, String targetBranch) {
 		Map<String, String> params = new HashMap();
 		params.put("source_branch", sourceBranch);
 		params.put("target_branch", targetBranch);
@@ -26,7 +26,7 @@ class RestClient {
 		
 		String uri = this.baseUrl.concat("/api/v4/projects/").concat(idProject.toString()).concat("merge_requests")
 		
-		post(uri, params)
+		return post(uri, params)
 	}
 
 	@NonCPS
@@ -82,7 +82,7 @@ class RestClient {
 				response="";
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			println e.printStackTrace();
 		} finally {
 			connection.disconnect();
 		}
