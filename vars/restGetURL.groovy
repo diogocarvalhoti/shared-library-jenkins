@@ -14,7 +14,9 @@ def call(body) {
         error "No URL found"
     }
 
-    retry(3) {
+	println config.url
+	
+    retry(1) {
         return getResult(config.url, config.token)
     }
 }
