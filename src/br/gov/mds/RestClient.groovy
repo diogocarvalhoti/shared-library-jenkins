@@ -2,7 +2,6 @@ package br.gov.mds
 
 import com.cloudbees.groovy.cps.NonCPS
 import groovy.json.JsonSlurperClassic
-import groovy.transform.MapConstructor
 
 class RestClient {
 
@@ -90,6 +89,7 @@ class RestClient {
 		return response;
 	}
 
+	@NonCPS
 	private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException{
 		StringBuilder result = new StringBuilder();
 		boolean first = true;
