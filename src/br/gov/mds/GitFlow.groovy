@@ -4,16 +4,11 @@ import com.github.zafarkhaja.semver.Version
 
 public class GitFlow {
 
-	private String baseUrl;
-	private String token;
-
-	public GitFlow(String baseUrl, String token) {
-		this.baseUrl = baseUrl;
-		this.token = token;
-	}
+	private static final String BASE_URL = "http://sugitpd02.mds.net"
+	private static final String PRIVATE_TOKEN = "u3xBWdP3KUxxG7PQYm_t"
 
 	public Integer getIdProject(String namespace) {
-		String uri = new StringBuilder(this.baseUrl)
+		String uri = new StringBuilder(this.BASE_URL)
 				.append("/api/v4/projects/").append(namespace).toString()
 		Map resultMap = (Map) GitRestClient.get(uri, this.token)
 		return resultMap.get("id")
@@ -26,14 +21,14 @@ public class GitFlow {
 		params.put("target_branch", "develop");
 		params.put("title", "Merge Request da branch: " + sourceBranch);
 
-		String uri = new StringBuilder(this.baseUrl)
+		String uri = new StringBuilder(this.BASE_URL)
 				.append("/api/v4/projects/").append(idProject).append("/merge_requests").toString();
 
 		return GitRestClient.post(uri, this.token, params)
 	}
 
 	public List<String> getFeatures(Integer idProject){
-		String uri = new StringBuilder(this.baseUrl)
+		String uri = new StringBuilder(this.BASE_URL)
 				.append("/api/v4/projects/").append(idProject).append("/repository/branches").toString()
 		List branches = GitRestClient.get(uri, this.token)
 
@@ -63,7 +58,7 @@ public class GitFlow {
 	}
 
 	private String getUltimaTag(Integer idProject){
-		String uri = new StringBuilder(this.baseUrl)
+		String uri = new StringBuilder(this.BASE_URL)
 				.append("/api/v4/projects/").append(idProject).append("/repository/tags").toString()
 
 //		Map<String, String> params = new HashMap();
