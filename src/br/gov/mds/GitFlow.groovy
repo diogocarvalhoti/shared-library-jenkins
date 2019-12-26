@@ -1,6 +1,8 @@
 package br.gov.mds
 
 import com.cloudbees.groovy.cps.NonCPS
+
+@Grab('com.github.zafarkhaja:java-semver:0.9.0')
 import com.github.zafarkhaja.semver.Version
 
 public class GitFlow {
@@ -70,7 +72,7 @@ public class GitFlow {
 
 		if(!tags.empty) {
 			Map tag = tags.get(0);
-			return tag.get("name");
+			return tag.get("name")
 		}
 		return "0.0.0"
 	}
