@@ -4,7 +4,6 @@ import groovy.json.JsonSlurperClassic
 def baseUrl;
 def token;
 
-
 def init(baseUrl, token) {
 	this.baseUrl = baseUrl;
 	this.token = token;
@@ -18,11 +17,13 @@ def getIdProject(String namespace) {
 
 def createMR(Integer idProject, String sourceBranch) {
 	Map<String, String> params = new HashMap();
+	params.put("remove_source_branch", Boolean.TRUE);
 	params.put("source_branch", sourceBranch);
 	params.put("target_branch", "develop");
-	params.put("title", "WIP: Teste MR");
+	params.put("title", "MR da branch: " + sourceBranch);
 
-	String uri = this.baseUrl.concat("/api/v4/projects/").concat(idProject.toString()).concat("/merge_requests")
+	String uri = new StringBuilder(this.baseUrl)
+		.append("/api/v4/projects/").append(idProject).append("/merge_requests").toString();
 
 	return post(uri, params)
 }
@@ -37,8 +38,6 @@ def get(String uri) {
 	def rs = null
 	try {
 		connection.connect()
-		def responseCode = connection.getResponseCode()
-		println "Response Code: "+responseCode
 		rs = new JsonSlurperClassic().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
 	} finally {
 		connection.disconnect()
@@ -91,11 +90,11 @@ def getPostDataString(HashMap<String, String> params) throws UnsupportedEncoding
 	StringBuilder result = new StringBuilder();
 	boolean first = true;
 	for(Map.Entry<String, String> entry : params.entrySet()){
-		if (first)
+		if (first) {
 			first = false;
-		else
+		} else {
 			result.append("&");
-
+		}
 		result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
 		result.append("=");
 		result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
