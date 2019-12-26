@@ -1,45 +1,41 @@
 package br.gov.mds
 
-import java.util.logging.Logger
-
 import com.cloudbees.groovy.cps.NonCPS
+
 import groovy.json.JsonSlurperClassic
 
-class RestClient {
+public class RestClient {
 
 	private String baseUrl;
 	private String token;
-	
-	private Logger logger = Logger.getLogger(RestClient.getSimpleName())
 
 	public RestClient(baseUrl, token) {
-		logger.info("TESTEEEEEEE")
-		println("TESTEEEE")
-		
 		this.baseUrl = baseUrl;
 		this.token = token;
 	}
 
 	public Integer getIdProject(String namespace) {
-		Map resultMap = get(this.baseUrl.concat("/api/v4/projects/").concat(namespace))
+		String uri = new StringBuilder(this.baseUrl)
+				.append("/api/v4/projects/").append(namespace).toString()
+		Map resultMap = get(uri)
 		return resultMap.get("id")
 	}
 
-	public String createMR(Integer idProject, String sourceBranch, String targetBranch) {
+	public String createMR(Integer idProject, String sourceBranch) {
 		Map<String, String> params = new HashMap();
+		params.put("remove_source_branch", "true");
 		params.put("source_branch", sourceBranch);
-		params.put("target_branch", targetBranch);
-		params.put("title", "Teste MR");
-		
-		String uri = this.baseUrl.concat("/api/v4/projects/").concat(idProject.toString()).concat("merge_requests")
-		
+		params.put("target_branch", "develop");
+		params.put("title", "MR da branch: " + sourceBranch);
+
+		String uri = new StringBuilder(this.baseUrl)
+				.append("/api/v4/projects/").append(idProject).append("/merge_requests").toString();
+
 		return post(uri, params)
 	}
 
 	@NonCPS
 	private Map get(String uri) {
-		throw new RuntimeException(e);
-		
 		HttpURLConnection connection = new URL(uri).openConnection()
 		connection.setRequestProperty("Private-Token", this.token)
 		connection.setRequestMethod("GET")
@@ -48,8 +44,6 @@ class RestClient {
 		def rs = null
 		try {
 			connection.connect()
-			def responseCode = connection.getResponseCode()
-			println "Response Code: "+responseCode
 			rs = new JsonSlurperClassic().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
 		} finally {
 			connection.disconnect()
@@ -59,21 +53,19 @@ class RestClient {
 
 	@NonCPS
 	private String post(String uri, Map params) {
-		println "Executando POST: " + uri
-		
 		String response = "";
-		HttpURLConnection connection = new URL(uri).openConnection();
-		connection.setReadTimeout(15000);
-		connection.setConnectTimeout(15000);
-		connection.setRequestMethod("POST");
-		connection.setDoInput(true);
-		connection.setDoOutput(true);
-
 		try {
+			HttpURLConnection connection = new URL(uri).openConnection();
+			connection.setReadTimeout(15000);
+			connection.setConnectTimeout(15000);
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Private-Token", this.token)
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+
 			OutputStream os = connection.getOutputStream();
 			BufferedWriter writer = new BufferedWriter(
 					new OutputStreamWriter(os, "UTF-8"));
-
 
 			writer.write(getPostDataString(params));
 
@@ -81,9 +73,7 @@ class RestClient {
 			writer.close();
 			os.close();
 			int responseCode = connection.getResponseCode();
-			
-			println "Response Code: " + responseCode
-			
+
 			if (responseCode == HttpURLConnection.HTTP_OK) {
 				String line;
 				BufferedReader br=new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -96,8 +86,6 @@ class RestClient {
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
-		} finally {
-			connection.disconnect();
 		}
 		return response;
 	}
@@ -107,11 +95,11 @@ class RestClient {
 		StringBuilder result = new StringBuilder();
 		boolean first = true;
 		for(Map.Entry<String, String> entry : params.entrySet()){
-			if (first)
+			if (first) {
 				first = false;
-			else
+			}else {
 				result.append("&");
-
+			}
 			result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
 			result.append("=");
 			result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));

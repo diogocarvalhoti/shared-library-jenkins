@@ -57,7 +57,6 @@ def post(String uri, Map params) {
 		connection.setDoInput(true);
 		connection.setDoOutput(true);
 
-
 		OutputStream os = connection.getOutputStream();
 		BufferedWriter writer = new BufferedWriter(
 				new OutputStreamWriter(os, "UTF-8"));
