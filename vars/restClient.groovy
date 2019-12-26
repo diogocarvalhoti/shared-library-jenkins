@@ -17,7 +17,7 @@ def getIdProject(String namespace) {
 
 def createMR(Integer idProject, String sourceBranch) {
 	Map<String, String> params = new HashMap();
-	params.put("remove_source_branch", Boolean.TRUE);
+	params.put("remove_source_branch", "true");
 	params.put("source_branch", sourceBranch);
 	params.put("target_branch", "develop");
 	params.put("title", "MR da branch: " + sourceBranch);
