@@ -11,7 +11,7 @@ public final class GitRestClient {
 	}
 	
 	@NonCPS
-	public static Map get(String uri, String token) {
+	public static Object get(String uri, String token) {
 		HttpURLConnection connection = new URL(uri).openConnection()
 		connection.setRequestProperty("Private-Token", token)
 		connection.setRequestMethod("GET")
