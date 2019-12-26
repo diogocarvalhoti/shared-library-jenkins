@@ -9,12 +9,7 @@ public class GitFlow {
 	public GitFlow(baseUrl, token) {
 		this.baseUrl = baseUrl;
 		this.token = token;
-
-		def config = new HashMap()
-		def binding = getBinding()
-		config.putAll(binding.getVariables())
-		Logger.setOutput(config['out'])
-		Logger.log("teste");
+		System.out.println(this.baseUrl);
 	}
 
 	public Integer getIdProject(String namespace) {
