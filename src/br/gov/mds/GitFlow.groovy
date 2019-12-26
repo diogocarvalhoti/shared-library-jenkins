@@ -1,5 +1,6 @@
 package br.gov.mds
 
+import com.cloudbees.groovy.cps.NonCPS
 import com.github.zafarkhaja.semver.Version
 
 public class GitFlow {
@@ -10,7 +11,7 @@ public class GitFlow {
 	public Integer getIdProject(String namespace) {
 		String uri = new StringBuilder(this.BASE_URL)
 				.append("/api/v4/projects/").append(namespace).toString()
-		Map resultMap = (Map) GitRestClient.get(uri, this.token)
+		Map resultMap = (Map) GitRestClient.get(uri, this.PRIVATE_TOKEN)
 		return resultMap.get("id")
 	}
 
@@ -24,13 +25,13 @@ public class GitFlow {
 		String uri = new StringBuilder(this.BASE_URL)
 				.append("/api/v4/projects/").append(idProject).append("/merge_requests").toString();
 
-		return GitRestClient.post(uri, this.token, params)
+		return GitRestClient.post(uri, this.PRIVATE_TOKEN, params)
 	}
 
 	public List<String> getFeatures(Integer idProject){
 		String uri = new StringBuilder(this.BASE_URL)
 				.append("/api/v4/projects/").append(idProject).append("/repository/branches").toString()
-		List branches = GitRestClient.get(uri, this.token)
+		List branches = GitRestClient.get(uri, this.PRIVATE_TOKEN)
 
 		List<String> features = new ArrayList();
 
@@ -57,6 +58,7 @@ public class GitFlow {
 		return version.incrementPreReleaseVersion();
 	}
 
+	@NonCPS
 	private String getUltimaTag(Integer idProject){
 		String uri = new StringBuilder(this.BASE_URL)
 				.append("/api/v4/projects/").append(idProject).append("/repository/tags").toString()
@@ -64,7 +66,7 @@ public class GitFlow {
 //		Map<String, String> params = new HashMap();
 //		params.put("order_by", "name");
 
-		List tags = GitRestClient.get(uri, this.token)
+		List tags = GitRestClient.get(uri, this.PRIVATE_TOKEN)
 
 		if(!tags.empty) {
 			Map tag = tags.get(0);
@@ -74,11 +76,11 @@ public class GitFlow {
 	}
 
 
-	public static void main(String[] args) {
-		def baseUrl = 'http://sugitpd02.mds.net'
-		def privateToken = 'u3xBWdP3KUxxG7PQYm_t'
-		GitFlow flow = new GitFlow(baseUrl, privateToken)
-		def tag = flow.getNextVersion(559, SemVerTypeEnum.PATCH);
-		System.out.println(tag);
-	}
+//	public static void main(String[] args) {
+//		def baseUrl = 'http://sugitpd02.mds.net'
+//		def privateToken = 'u3xBWdP3KUxxG7PQYm_t'
+//		GitFlow flow = new GitFlow(baseUrl, privateToken)
+//		def tag = flow.getNextVersion(559, SemVerTypeEnum.PATCH);
+//		System.out.println(tag);
+//	}
 }
