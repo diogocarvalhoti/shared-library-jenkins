@@ -3,7 +3,6 @@ package br.gov.mds;
 import com.cloudbees.groovy.cps.NonCPS
 
 import groovy.json.JsonSlurperClassic
-import groovy.transform.MapConstructor
 
 public final class GitRestClient {
 	
