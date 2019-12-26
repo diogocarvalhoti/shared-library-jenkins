@@ -5,7 +5,7 @@ import com.cloudbees.groovy.cps.NonCPS
 @Grab('com.github.zafarkhaja:java-semver:0.9.0')
 import com.github.zafarkhaja.semver.Version
 
-public class GitFlow {
+public class GitFlow implements Serializable {
 
 	private static final String BASE_URL = "http://sugitpd02.mds.net"
 	private static final String PRIVATE_TOKEN = "u3xBWdP3KUxxG7PQYm_t"
