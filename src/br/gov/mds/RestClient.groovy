@@ -6,6 +6,7 @@ import groovy.json.JsonSlurperClassic
 
 public class RestClient {
 
+	
 	private String baseUrl;
 	private String token;
 
