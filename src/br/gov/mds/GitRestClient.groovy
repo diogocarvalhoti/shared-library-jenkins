@@ -3,6 +3,7 @@ package br.gov.mds;
 import com.cloudbees.groovy.cps.NonCPS
 
 import groovy.json.JsonSlurperClassic
+import groovy.transform.MapConstructor
 
 public final class GitRestClient {
 	
@@ -11,12 +12,18 @@ public final class GitRestClient {
 	}
 	
 	@NonCPS
-	public static Object get(String uri, String token) {
+	public static Object get(String uri, String token, Map params = null) {
 		HttpURLConnection connection = new URL(uri).openConnection()
 		connection.setRequestProperty("Private-Token", token)
 		connection.setRequestMethod("GET")
 		connection.setDoInput(true)
 		connection.setDoOutput(true)
+		
+		
+		if(params != null) {
+			adicionarParametros(connection, params);
+		}
+		
 		def rs = null
 		try {
 			connection.connect()
@@ -39,15 +46,10 @@ public final class GitRestClient {
 			connection.setDoInput(true);
 			connection.setDoOutput(true);
 
-			OutputStream os = connection.getOutputStream();
-			BufferedWriter writer = new BufferedWriter(
-					new OutputStreamWriter(os, "UTF-8"));
-
-			writer.write(getPostDataString(params));
-
-			writer.flush();
-			writer.close();
-			os.close();
+			if(params != null) {
+				adicionarParametros(connection, params);
+			}
+			
 			int responseCode = connection.getResponseCode();
 
 			if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -64,6 +66,18 @@ public final class GitRestClient {
 			throw new RuntimeException(e);
 		}
 		return response;
+	}
+
+	private static adicionarParametros(HttpURLConnection connection, Map params) {
+		OutputStream os = connection.getOutputStream();
+		BufferedWriter writer = new BufferedWriter(
+				new OutputStreamWriter(os, "UTF-8"));
+
+		writer.write(getPostDataString(params));
+
+		writer.flush();
+		writer.close();
+		os.close()
 	}
 
 	@NonCPS
