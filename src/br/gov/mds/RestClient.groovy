@@ -6,8 +6,12 @@ import groovy.json.JsonSlurperClassic
 
 public final class RestClient {
 	
+	private RestClient() {
+		super();
+	}
+	
 	@NonCPS
-	private Map get(String uri) {
+	public static Map get(String uri) {
 		HttpURLConnection connection = new URL(uri).openConnection()
 		connection.setRequestProperty("Private-Token", this.token)
 		connection.setRequestMethod("GET")
@@ -24,7 +28,7 @@ public final class RestClient {
 	}
 
 	@NonCPS
-	private String post(String uri, Map params) {
+	public static String post(String uri, Map params) {
 		String response = "";
 		try {
 			HttpURLConnection connection = new URL(uri).openConnection();
