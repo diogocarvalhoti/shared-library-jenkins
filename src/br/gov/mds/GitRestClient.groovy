@@ -4,16 +4,16 @@ import com.cloudbees.groovy.cps.NonCPS
 
 import groovy.json.JsonSlurperClassic
 
-public final class RestClient {
+public final class GitRestClient {
 	
-	private RestClient() {
+	private GitRestClient() {
 		super();
 	}
 	
 	@NonCPS
-	public static Map get(String uri) {
+	public static Map get(String uri, String token) {
 		HttpURLConnection connection = new URL(uri).openConnection()
-		connection.setRequestProperty("Private-Token", this.token)
+		connection.setRequestProperty("Private-Token", token)
 		connection.setRequestMethod("GET")
 		connection.setDoInput(true)
 		connection.setDoOutput(true)
@@ -28,14 +28,14 @@ public final class RestClient {
 	}
 
 	@NonCPS
-	public static String post(String uri, Map params) {
+	public static String post(String uri, String token, Map params) {
 		String response = "";
 		try {
 			HttpURLConnection connection = new URL(uri).openConnection();
 			connection.setReadTimeout(15000);
 			connection.setConnectTimeout(15000);
 			connection.setRequestMethod("POST");
-			connection.setRequestProperty("Private-Token", this.token)
+			connection.setRequestProperty("Private-Token", token)
 			connection.setDoInput(true);
 			connection.setDoOutput(true);
 

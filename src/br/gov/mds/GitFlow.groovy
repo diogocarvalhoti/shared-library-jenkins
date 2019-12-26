@@ -14,7 +14,7 @@ public class GitFlow {
 	public Integer getIdProject(String namespace) {
 		String uri = new StringBuilder(this.baseUrl)
 				.append("/api/v4/projects/").append(namespace).toString()
-		Map resultMap = RestClient.get(uri)
+		Map resultMap = GitRestClient.get(uri, this.token)
 		return resultMap.get("id")
 	}
 
@@ -28,6 +28,6 @@ public class GitFlow {
 		String uri = new StringBuilder(this.baseUrl)
 				.append("/api/v4/projects/").append(idProject).append("/merge_requests").toString();
 
-		return RestClient.post(uri, params)
+		return GitRestClient.post(uri, this.token, params)
 	}
 }
