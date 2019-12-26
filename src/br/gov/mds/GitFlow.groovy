@@ -46,6 +46,7 @@ public class GitFlow implements Serializable {
 		return features;
 	}
 
+	@NonCPS
 	public String getNextVersion(Integer idProject, SemVerTypeEnum semVerTypeEnum) {
 		def ultimaTag = this.getUltimaTag(idProject)
 		Version version = Version.valueOf(ultimaTag);
