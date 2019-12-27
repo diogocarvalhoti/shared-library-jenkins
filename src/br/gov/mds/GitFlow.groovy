@@ -51,11 +51,11 @@ public class GitFlow implements Serializable {
 		def ultimaTag = this.getUltimaTag(idProject)
 		Version version = Version.valueOf(ultimaTag);
 
-		if(BranchUtil.TypesVersion.MAJOR.equals(semVerType)) {
+		if(BranchUtil.TypesVersion.MAJOR.toString().equals(semVerType)) {
 			return version.incrementMajorVersion()
-		} else if(BranchUtil.TypesVersion.MINOR.equals(semVerType)) {
+		} else if(BranchUtil.TypesVersion.MINOR.toString().equals(semVerType)) {
 			return version.incrementMinorVersion()
-		} else if(BranchUtil.TypesVersion.PATCH.equals(semVerType)) {
+		} else if(BranchUtil.TypesVersion.PATCH.toString().equals(semVerType)) {
 			return version.incrementPatchVersion()
 		}
 		return version.incrementPreReleaseVersion();
