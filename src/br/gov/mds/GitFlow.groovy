@@ -47,15 +47,15 @@ public class GitFlow implements Serializable {
 	}
 
 	@NonCPS
-	public String getNextVersion(Integer idProject, SemVerTypeEnum semVerTypeEnum) {
+	public String getNextVersion(Integer idProject, String semVerType) {
 		def ultimaTag = this.getUltimaTag(idProject)
 		Version version = Version.valueOf(ultimaTag);
 
-		if(SemVerTypeEnum.MAJOR.equals(semVerTypeEnum)) {
+		if(BranchUtil.TypesVersion.MAJOR.equals(semVerType)) {
 			return version.incrementMajorVersion()
-		} else if(SemVerTypeEnum.MINOR.equals(semVerTypeEnum)) {
+		} else if(BranchUtil.TypesVersion.MINOR.equals(semVerType)) {
 			return version.incrementMinorVersion()
-		} else if(SemVerTypeEnum.PATCH.equals(semVerTypeEnum)) {
+		} else if(BranchUtil.TypesVersion.PATCH.equals(semVerType)) {
 			return version.incrementPatchVersion()
 		}
 		return version.incrementPreReleaseVersion();

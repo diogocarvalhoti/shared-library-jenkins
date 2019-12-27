@@ -1,6 +1,5 @@
 @Library("shared-library-jenkins@master")
 import br.gov.mds.GitFlow
-import br.gov.mds.SemVerTypeEnum
 import br.gov.mds.BranchUtil
 
 node {
@@ -19,15 +18,15 @@ node {
     
     stage('Escolha tipo de Branch') {
         timeout(5) {
-          def TIPO = input message: 'Escolha o tipo de branch:', 
-            parameters: [choice(choices: BranchsUtil.Types.values().toList(), 
+          TIPO = input message: 'Escolha o tipo de branch:', 
+            parameters: [choice(choices: BranchUtil.Types.values().toList(), 
             description: '', name: 'tipo')]
         }
     }
     if(TIPO == "RELEASE"){
       stage('Escolha o tipo de versionamento') {
           timeout(5) {
-            def TYPE_VERSION = input message: 'Escolha o tipo de versionamento:', 
+            TYPE_VERSION = input message: 'Escolha o tipo de versionamento:', 
               parameters: [choice(choices: BranchUtil.TypesVersion.values().toList(), 
               description: '', name: 'typeVersion')]
           }
@@ -35,8 +34,8 @@ node {
     } else {
       stage('Escolha a ação') {
           timeout(5) {
-            def ACAO = input message: 'Escolha a ação:', 
-              parameters: [choice(choices: BranchsUtil.Actions.values().toList(), 
+            ACAO = input message: 'Escolha a ação:', 
+              parameters: [choice(choices: BranchUtil.Actions.values().toList(), 
               description: '', name: 'acao')]
           }
       }
