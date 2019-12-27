@@ -16,7 +16,7 @@ node {
         sh 'git config --global user.name \"Gerência de Configuração e Mudança\"'
     }
     
-    stage('Escolha tipo de Branch') {
+    stage('Escolha o tipo de Branch') {
         timeout(5) {
           TIPO = input message: 'Escolha o tipo de branch:', 
             parameters: [choice(choices: BranchUtil.Types.values().toList(), 
@@ -53,11 +53,11 @@ node {
                     )
                 ])
                 sshagent(['3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f']) {
-                        sh 'git config --global http.sslVerify false'
-                        sh 'git checkout develop'
-                        sh 'git flow init -d'
-                        sh 'git flow feature start '+FEATURE_NAME +' develop'
-                        sh 'git flow feature publish '+FEATURE_NAME
+                    sh 'git config --global http.sslVerify false'
+                    sh 'git checkout develop'
+                    sh 'git flow init -d'
+                    sh 'git flow feature start '+FEATURE_NAME +' develop'
+                    sh 'git flow feature publish '+FEATURE_NAME
                 }
             } else {
                 def namespace = 'gcm_cgsi%2Fsispaa'
@@ -72,22 +72,28 @@ node {
                 gitflow.createMR(idProject, FEATURE_NAME)
             }
         } else if(TIPO == "RELEASE"){
-              def namespace = 'gcm_cgsi%2Fsispaa'
-              def gitflow = new GitFlow()
-              def Integer idProject = gitflow.getIdProject(namespace)
-              def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION)
+            def namespace = 'gcm_cgsi%2Fsispaa'
+            def gitflow = new GitFlow()
+            def Integer idProject = gitflow.getIdProject(namespace)
+            def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION)
               
-              sshagent(['3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f']) {
-                  sh 'git config --global http.sslVerify false'
-                  sh 'git checkout develop'
-                  sh 'git flow init -d'
-                  sh 'git flow release start ' + nextVersion
-                  sh 'git flow release publish'
+            sshagent(['3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f']) {
+                sh 'git config --global http.sslVerify false'
+                sh 'git checkout develop'
+                sh 'git flow init -d'
+                sh 'git flow release start ' + nextVersion
+                sh 'git flow release publish'
                   
-                  sh 'export GIT_MERGE_AUTOEDIT=no'
-                  sh 'git flow release finish -p -m \"Fechando versão \"'
-                  sh 'unset GIT_MERGE_AUTOEDIT'  
-              }
+             	withMaven(maven: 'Maven 3.6.2') {
+            		sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion=' +nextVersion+ ' -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true'
+       			}
+                                  
+                sh 'export GIT_MERGE_AUTOEDIT=no'
+                sh 'git add .'
+                sh 'git commit -m \"Versionando aplicação para a versão '+ nextVersion+ '\"'
+                sh 'git flow release finish -p -m \"Fechando versão \"'
+                sh 'unset GIT_MERGE_AUTOEDIT'  
+            }
         }
     }
 }
