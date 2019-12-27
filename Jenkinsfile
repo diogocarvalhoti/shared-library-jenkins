@@ -69,7 +69,7 @@ node {
                     parameters: [choice(choices: gitflow.getFeatures(idProject),
                     description: '', name: 'feature')]
 
-                gitflow.createMR(idProject, "feature/"+FEATURE_NAME)
+                gitflow.createMR(idProject, FEATURE_NAME)
             }
         } else if(TIPO == "RELEASE"){
               def namespace = 'gcm_cgsi%2Fsispaa'
