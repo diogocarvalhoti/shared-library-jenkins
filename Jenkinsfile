@@ -44,7 +44,7 @@ node {
     stage('Executando ação') {
         if(TIPO == "FEATURE"){
             if(ACAO == "START") {
-              def FEATURE_NAME = input(
+              FEATURE_NAME = input(
                 id: 'userInput', message: 'Nome da feature',
                 parameters: [
                     string(
@@ -85,7 +85,7 @@ node {
                   sh 'git flow release publish'
                   
                   sh 'export GIT_MERGE_AUTOEDIT=no'
-                  sh 'git flow release finish -p -m \"Closing version\"'
+                  sh 'git flow release finish -p -m \"Fechando versão \"'
                   sh 'unset GIT_MERGE_AUTOEDIT'  
               }
         }

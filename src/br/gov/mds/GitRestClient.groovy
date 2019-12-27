@@ -67,6 +67,7 @@ public final class GitRestClient {
 		return response;
 	}
 
+	@NonCPS
 	private static adicionarParametros(HttpURLConnection connection, Map params) {
 		OutputStream os = connection.getOutputStream();
 		BufferedWriter writer = new BufferedWriter(
