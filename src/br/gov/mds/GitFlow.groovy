@@ -64,10 +64,11 @@ public class GitFlow implements Serializable {
 	@NonCPS
 	private String getUltimaTag(Integer idProject){
 		String uri = new StringBuilder(this.BASE_URL)
-				.append("/api/v4/projects/").append(idProject).append("/repository/tags").toString()
+				.append("/api/v4/projects/").append(idProject)
+				.append("/repository/tags").append("?order_by=name").toString();
 
-		//		Map<String, String> params = new HashMap();
-		//		params.put("order_by", "name");
+				Map<String, String> params = new HashMap();
+				params.put("order_by", "name");
 
 		List tags = GitRestClient.get(uri, this.PRIVATE_TOKEN)
 
@@ -81,8 +82,23 @@ public class GitFlow implements Serializable {
 	def versionarArtefato(steps, linguagem, nextVersion){
 		if("JAVA" == linguagem) {
 			steps.withMaven(maven: 'Maven 3.6.2') {
-				steps.sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion=' +nextVersion+ ' -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true'
+				steps.sh "mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${nextVersion} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
 			}
+		} else if("PHP" == linguagem) {
+			steps.contentReplace(
+			    configs: [
+			        fileContentReplaceConfig(
+			            configs: [
+			                fileContentReplaceItemConfig(
+			                    search: '(APP_VERSION=)\\d+.\\d+.\\d+',
+			                    replace: nextVersion,
+			                    matchCount: 1)
+			                ],
+			            fileEncoding: 'UTF-8',
+			            filePath: '.env.example')
+			        ])
+		} else if("NODE" == linguagem) {
+			//TODO A implementar
 		}
 		return this
 	}
