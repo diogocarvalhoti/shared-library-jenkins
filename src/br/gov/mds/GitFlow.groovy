@@ -79,7 +79,7 @@ public class GitFlow implements Serializable {
 		return "0.0.0"
 	}
 
-	def versionarArtefato(steps, linguagem, nextVersion){
+	def versionarArtefato(steps, linguagem, pathArtefato, nextVersion){
 		if("JAVA" == linguagem) {
 			steps.withMaven(maven: 'Maven 3.6.2') {
 				steps.sh "mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${nextVersion} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
@@ -95,7 +95,7 @@ public class GitFlow implements Serializable {
 			                    matchCount: 1)
 			                ],
 			            fileEncoding: 'UTF-8',
-			            filePath: '.env.example')
+			            filePath: pathArtefato)
 			        ])
 		} else if("NODE" == linguagem) {
 			//TODO A implementar
