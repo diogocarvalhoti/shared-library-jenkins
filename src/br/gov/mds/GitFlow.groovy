@@ -87,9 +87,9 @@ public class GitFlow implements Serializable {
 		} else if("PHP" == linguagem) {
 			steps.contentReplace(
 			    configs: [
-			        fileContentReplaceConfig(
+			        steps.fileContentReplaceConfig(
 			            configs: [
-			                fileContentReplaceItemConfig(
+			                steps.fileContentReplaceItemConfig(
 			                    search: '(APP_VERSION=)\\d+.\\d+.\\d+',
 			                    replace: nextVersion,
 			                    matchCount: 1)
