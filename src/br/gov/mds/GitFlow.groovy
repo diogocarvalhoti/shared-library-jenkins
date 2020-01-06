@@ -80,10 +80,11 @@ public class GitFlow implements Serializable {
 
 	def versionarArtefato(steps, linguagem, nextVersion){
 		if("JAVA" == linguagem) {
-			def mvnTool = tool 'Maven 3.6.2'
-			steps.sh "${mvnTool}/bin/mvn versions:set -DgenerateBackupPoms=false -DnewVersion=' +nextVersion+ ' -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
+			steps.withMaven(maven: 'Maven 3.6.2') {
+				steps.sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion=' +nextVersion+ ' -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true'
+			}
 		}
-		return steps
+		return this
 	}
 
 
