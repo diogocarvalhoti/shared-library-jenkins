@@ -83,8 +83,10 @@ node {
                 sh 'git flow init -d'
                 sh 'git flow release start ' + nextVersion
                 sh 'git flow release publish'
+                
+                def linguagem = 'JAVA'
                   
-                gitflow.versionarArtefato(this,"JAVA", nextVersion)
+                gitflow.versionarArtefato(this,linguagem, nextVersion)
                                   
                 sh 'export GIT_MERGE_AUTOEDIT=no'
                 sh 'git add .'

@@ -80,7 +80,7 @@ public class GitFlow implements Serializable {
 
 	@NonCPS
 	def versionarArtefato(steps, linguagem, nextVersion){
-		if(JAVA == linguagem) {
+		if("JAVA" == linguagem) {
 			steps.withMaven(maven: 'Maven 3.6.2') {
 				steps.sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion=' +nextVersion+ ' -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true'
 			}
