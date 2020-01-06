@@ -84,9 +84,7 @@ node {
                 sh 'git flow release start ' + nextVersion
                 sh 'git flow release publish'
                   
-             	withMaven(maven: 'Maven 3.6.2') {
-            		sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion=' +nextVersion+ ' -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true'
-       			}
+                gitflow.versionarArtefato(this,"JAVA", nextVersion)
                                   
                 sh 'export GIT_MERGE_AUTOEDIT=no'
                 sh 'git add .'

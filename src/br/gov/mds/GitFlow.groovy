@@ -66,8 +66,8 @@ public class GitFlow implements Serializable {
 		String uri = new StringBuilder(this.BASE_URL)
 				.append("/api/v4/projects/").append(idProject).append("/repository/tags").toString()
 
-//		Map<String, String> params = new HashMap();
-//		params.put("order_by", "name");
+		//		Map<String, String> params = new HashMap();
+		//		params.put("order_by", "name");
 
 		List tags = GitRestClient.get(uri, this.PRIVATE_TOKEN)
 
@@ -78,12 +78,22 @@ public class GitFlow implements Serializable {
 		return "0.0.0"
 	}
 
+	@NonCPS
+	def versionarArtefato(steps, linguagem, nextVersion){
+		if(JAVA == linguagem) {
+			steps.withMaven(maven: 'Maven 3.6.2') {
+				steps.sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion=' +nextVersion+ ' -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true'
+			}
+		}
+		return this
+	}
 
-//	public static void main(String[] args) {
-//		def baseUrl = 'http://sugitpd02.mds.net'
-//		def privateToken = 'u3xBWdP3KUxxG7PQYm_t'
-//		GitFlow flow = new GitFlow(baseUrl, privateToken)
-//		def tag = flow.getNextVersion(559, SemVerTypeEnum.PATCH);
-//		System.out.println(tag);
-//	}
+
+	//	public static void main(String[] args) {
+	//		def baseUrl = 'http://sugitpd02.mds.net'
+	//		def privateToken = 'u3xBWdP3KUxxG7PQYm_t'
+	//		GitFlow flow = new GitFlow(baseUrl, privateToken)
+	//		def tag = flow.getNextVersion(559, SemVerTypeEnum.PATCH);
+	//		System.out.println(tag);
+	//	}
 }
