@@ -100,7 +100,7 @@ public class GitFlow implements Serializable {
 		} else if("NODE" == linguagem) {
 			//TODO A implementar
 		}
-		return this
+		return steps
 	}
 
 
