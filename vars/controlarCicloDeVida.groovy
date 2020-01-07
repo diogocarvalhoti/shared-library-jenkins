@@ -1,5 +1,9 @@
 #!groovy
 import br.gov.mds.GitFlow
+
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 import br.gov.mds.BranchUtil
 
 def validarParametros(args) {
@@ -7,15 +11,29 @@ def validarParametros(args) {
 		println "O parâmetro gitRepositorySSH é obrigatório"
 		return
 	}
-	if(args.namespace) {
-		println "O parâmetro namespace é obrigatório"
-		return
+//	if(args.namespace) {
+//		println "O parâmetro namespace é obrigatório"
+//		return
+//	}
+}
+
+def recuperarNamespace(repository) {
+	final String regex = "\\:(.*?).git";
+
+	final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+	final Matcher matcher = pattern.matcher(string);
+
+	while (matcher.find()) {
+		return matcher.group(1).replace("/", "%2F");
 	}
+	return ""
 }
 
 def call(args) {
 	
 	validarParametros(args)
+	
+	def namespace = recuperarNamespace(args.gitRepositorySSH)
 	
 	args.linguagem = args.linguagem ?: 'JAVA'
 	args.pathArtefato = args.pathArtefato ?: './pom.xml'
@@ -90,7 +108,7 @@ def call(args) {
 				} else {
 
 					def gitflow = new GitFlow()
-					def Integer idProject = gitflow.getIdProject(args.namespace)
+					def Integer idProject = gitflow.getIdProject(namespace)
 
 					def FEATURE_NAME = input message: 'Escolha a feature:',
 					parameters: [
@@ -103,7 +121,7 @@ def call(args) {
 			} else if(TIPO == "RELEASE"){
 
 				def gitflow = new GitFlow()
-				def Integer idProject = gitflow.getIdProject(args.namespace)
+				def Integer idProject = gitflow.getIdProject(namespace)
 				def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION)
 
 				sshagent([
@@ -127,3 +145,4 @@ def call(args) {
 		}
 	}
 }
+
