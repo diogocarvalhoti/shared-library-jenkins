@@ -67,8 +67,8 @@ public class GitFlow implements Serializable {
 				.append("/api/v4/projects/").append(idProject)
 				.append("/repository/tags").append("?order_by=name").toString();
 
-				Map<String, String> params = new HashMap();
-				params.put("order_by", "name");
+		Map<String, String> params = new HashMap();
+		params.put("order_by", "name");
 
 		List tags = GitRestClient.get(uri, this.PRIVATE_TOKEN)
 
@@ -85,30 +85,13 @@ public class GitFlow implements Serializable {
 				steps.sh "mvn -f ${pathArtefato} versions:set -DgenerateBackupPoms=false -DnewVersion=${nextVersion} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
 			}
 		} else if("PHP" == linguagem) {
-			steps.contentReplace(
-			    configs: [
-			        steps.fileContentReplaceConfig(
-			            configs: [
-			                steps.fileContentReplaceItemConfig(
-			                    search: '(APP_VERSION=)\\d+.\\d+.\\d+',
-			                    replace: nextVersion,
-			                    matchCount: 1)
-			                ],
-			            fileEncoding: 'UTF-8',
-			            filePath: pathArtefato)
-			        ])
+			steps.sh "awk -F\"=\" -v OFS=\'=\' \'/APP_VERSION/{\$2=\"= ${nextVersion}\";print;next}1\' ${pathArtefato} > ${pathArtefato}.new"
+			steps.sh "mv ${pathArtefato}.new ${pathArtefato}"
 		} else if("NODE" == linguagem) {
-			//TODO A implementar
+			steps.nodejs('NodeJS - 10.x') {
+				steps.sh 'npm --prefix ' + pathArtefato +' version ' +nextVersion + ' --force'
+			}
 		}
 		return steps
 	}
-
-
-	//	public static void main(String[] args) {
-	//		def baseUrl = 'http://sugitpd02.mds.net'
-	//		def privateToken = 'u3xBWdP3KUxxG7PQYm_t'
-	//		GitFlow flow = new GitFlow(baseUrl, privateToken)
-	//		def tag = flow.getNextVersion(559, SemVerTypeEnum.PATCH);
-	//		System.out.println(tag);
-	//	}
 }

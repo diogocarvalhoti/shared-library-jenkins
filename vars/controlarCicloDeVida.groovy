@@ -11,10 +11,7 @@ def validarParametros(args) {
 		println "O parâmetro gitRepositorySSH é obrigatório"
 		return
 	}
-//	if(args.namespace) {
-//		println "O parâmetro namespace é obrigatório"
-//		return
-//	}
+
 }
 
 def recuperarNamespace(repository) {
