@@ -82,7 +82,7 @@ public class GitFlow implements Serializable {
 	def versionarArtefato(steps, linguagem, pathArtefato, nextVersion){
 		if("JAVA" == linguagem) {
 			steps.withMaven(maven: 'Maven 3.6.2') {
-				steps.sh "mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${nextVersion} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
+				steps.sh "mvn -f ${pathArtefato} versions:set -DgenerateBackupPoms=false -DnewVersion=${nextVersion} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
 			}
 		} else if("PHP" == linguagem) {
 			steps.contentReplace(
