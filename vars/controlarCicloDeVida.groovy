@@ -7,7 +7,7 @@ import java.util.regex.Pattern
 import br.gov.mds.BranchUtil
 
 def validarParametros(args) {
-	if(args.gitRepositorySSH) {
+	if(!args.gitRepositorySSH) {
 		println "O parâmetro gitRepositorySSH é obrigatório"
 		return
 	}
