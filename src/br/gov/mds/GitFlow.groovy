@@ -85,7 +85,7 @@ public class GitFlow implements Serializable {
 				steps.sh "mvn -f ${pathArtefato} versions:set -DgenerateBackupPoms=false -DnewVersion=${nextVersion} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
 			}
 		} else if("PHP" == linguagem) {
-			steps.sh "awk -F\"=\" -v OFS=\'=\' \'/APP_VERSION/{\$2=\"= ${nextVersion}\";print;next}1\' ${pathArtefato} > ${pathArtefato}.new"
+			steps.sh "awk -F\"=\" -v OFS=\'=\' \'/APP_VERSION/{\$2=\"${nextVersion}\";print;next}1\' ${pathArtefato} > ${pathArtefato}.new"
 			steps.sh "mv ${pathArtefato}.new ${pathArtefato}"
 		} else if("NODE" == linguagem) {
 			steps.nodejs('NodeJS - 10.x') {
