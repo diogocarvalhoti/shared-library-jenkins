@@ -21,7 +21,7 @@ def recuperarNamespace(repository) {
 	final String regex = "\\:(.*?).git";
 
 	final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
-	final Matcher matcher = pattern.matcher(string);
+	final Matcher matcher = pattern.matcher(repository);
 
 	while (matcher.find()) {
 		return matcher.group(1).replace("/", "%2F");
