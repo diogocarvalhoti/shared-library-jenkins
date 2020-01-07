@@ -72,7 +72,9 @@ node {
                 gitflow.createMR(idProject, FEATURE_NAME)
             }
         } else if(TIPO == "RELEASE"){
+            
             def namespace = 'gcm_cgsi%2Fsispaa'
+            
             def gitflow = new GitFlow()
             def Integer idProject = gitflow.getIdProject(namespace)
             def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION)
@@ -83,10 +85,11 @@ node {
                 sh 'git flow init -d'
                 sh 'git flow release start ' + nextVersion
                 sh 'git flow release publish'
-                
-                def linguagem = 'JAVA'
                   
-                gitflow.versionarArtefato(this,linguagem, nextVersion)
+                def linguagem = 'JAVA'
+                def pathArtefato = 'api/.env.example'
+                  
+                gitflow.versionarArtefato(this,linguagem, pathArtefato, nextVersion)
                                   
                 sh 'export GIT_MERGE_AUTOEDIT=no'
                 sh 'git add .'
