@@ -11,7 +11,6 @@ def validarParametros(args) {
 		println "O parâmetro gitRepositorySSH é obrigatório"
 		return
 	}
-
 }
 
 def recuperarNamespace(repository) {
@@ -27,14 +26,14 @@ def recuperarNamespace(repository) {
 }
 
 def call(args) {
-	
+
 	validarParametros(args)
-	
+
 	def namespace = recuperarNamespace(args.gitRepositorySSH)
-	
+
 	args.linguagem = args.linguagem ?: 'JAVA'
 	args.pathArtefato = args.pathArtefato ?: './pom.xml'
-	
+
 	node {
 		stage('Checkout') {
 			cleanWs()
@@ -117,9 +116,14 @@ def call(args) {
 				}
 			} else if(TIPO == "RELEASE"){
 
+				boolean IS_RC = input message: 'É uma Release Canditate?',
+				parameters: [
+					booleanParam(defaultValue: false, description: '', name: 'IS_RC')
+				]
+
 				def gitflow = new GitFlow()
 				def Integer idProject = gitflow.getIdProject(namespace)
-				def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION)
+				def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, IS_RC)
 
 				sshagent([
 					'3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
