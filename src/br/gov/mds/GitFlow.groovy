@@ -64,7 +64,8 @@ public class GitFlow implements Serializable {
 		return incrementarVersao(ultimaTag, semVerType)
 	}
 
-	private incrementarVersao(String ultimaVersao, String semVerType) {
+	@NonCPS
+	private String incrementarVersao(String ultimaVersao, String semVerType) {
 		Version version = Version.valueOf(ultimaVersao);
 		if(BranchUtil.TypesVersion.MAJOR.toString().equals(semVerType)) {
 			return version.incrementMajorVersion()
