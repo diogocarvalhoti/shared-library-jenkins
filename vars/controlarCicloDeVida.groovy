@@ -116,14 +116,14 @@ def call(args) {
 				}
 			} else if(TIPO == "RELEASE"){
 
-				boolean IS_RC = input message: 'É uma Release Canditate?',
+				boolean isRC = input message: 'É uma Release Canditate?',
 				parameters: [
-					booleanParam(defaultValue: false, description: '', name: 'IS_RC')
+					booleanParam(defaultValue: false, description: '', name: 'Release Candidate')
 				]
 
 				def gitflow = new GitFlow()
 				def Integer idProject = gitflow.getIdProject(namespace)
-				def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, IS_RC)
+				def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, isRC)
 
 				sshagent([
 					'3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
