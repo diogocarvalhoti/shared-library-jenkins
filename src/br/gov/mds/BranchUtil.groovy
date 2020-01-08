@@ -11,7 +11,7 @@ public class BranchUtil {
 	}
 
 	public enum TypesVersion {
-		MAJOR, MINOR, PATCH
+		MAJOR, MINOR, PATCH, PRODUCTION
 	}
 	
 }

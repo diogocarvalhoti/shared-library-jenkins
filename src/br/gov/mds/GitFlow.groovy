@@ -10,6 +10,8 @@ public class GitFlow implements Serializable {
 	private static final String BASE_URL = "http://sugitpd02.mds.net"
 	private static final String PRIVATE_TOKEN = "u3xBWdP3KUxxG7PQYm_t"
 
+	private static final String RC = "-rc"
+
 	public Integer getIdProject(String namespace) {
 		String uri = new StringBuilder(this.BASE_URL)
 				.append("/api/v4/projects/").append(namespace).toString()
@@ -51,14 +53,16 @@ public class GitFlow implements Serializable {
 		def ultimaTag = this.getUltimaTag(idProject)
 
 		if(isRC) {
-			if(ultimaTag.contains("rc")) {
+			if(ultimaTag.contains(RC)) {
 				Version version = Version.valueOf(ultimaTag);
 				return version.incrementPreReleaseVersion(); 
 			} else {
 				String nextVersion = incrementarVersao(ultimaTag, semVerType);
-				Version version = Version.valueOf(nextVersion.concat("-rc"));
+				Version version = Version.valueOf(nextVersion.concat(RC));
 				return version.incrementPreReleaseVersion();
 			}
+		} else if(BranchUtil.TypesVersion.PRODUCTION.toString().equals(semVerType)) {
+			return ultimaTag.split(RC)[0]
 		}
 
 		return incrementarVersao(ultimaTag, semVerType)
