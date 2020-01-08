@@ -115,7 +115,7 @@ def call(args) {
 					gitflow.createMR(idProject, FEATURE_NAME)
 				}
 			} else if(TIPO == "RELEASE"){
-
+				def IS_RC
 				if(TYPE_VERSION != "PRODUCTION") {
 					IS_RC = input message: 'É uma Release Canditate?',
 					parameters: [
