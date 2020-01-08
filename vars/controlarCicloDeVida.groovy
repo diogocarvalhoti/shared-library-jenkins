@@ -116,10 +116,12 @@ def call(args) {
 				}
 			} else if(TIPO == "RELEASE"){
 
-				boolean isRC = input message: 'É uma Release Canditate?',
-				parameters: [
-					booleanParam(defaultValue: false, description: '', name: 'Release Candidate')
-				]
+				if(TYPE_VERSION != "PRODUCTION") {
+					boolean isRC = input message: 'É uma Release Canditate?',
+					parameters: [
+						booleanParam(defaultValue: false, description: '', name: 'Release Candidate')
+					]
+				}
 
 				def gitflow = new GitFlow()
 				def Integer idProject = gitflow.getIdProject(namespace)
