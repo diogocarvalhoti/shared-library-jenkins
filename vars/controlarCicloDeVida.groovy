@@ -70,7 +70,7 @@ def call(args) {
                                             description: 'Escolha a opção de Release candidate, caso não se aplique, selecione \"NA\"', name: 'release_candidate')
                             ]
 
-                    if (!BranchUtil.ReleaseTypes.PRODUCTION.equals(RELEASE_TYPE)) {
+                    if (!BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(RELEASE_TYPE)) {
                         TYPE_VERSION = input message: 'Escolha o tipo de versionamento:',
                                 parameters: [
                                         choice(choices: BranchUtil.VersionTypes.values().toList(),
@@ -95,7 +95,7 @@ def call(args) {
                         sh 'git add .'
                         sh 'git commit -m \"Versionando aplicação para a versão ' + nextVersion + '\"'
 
-                        if (BranchUtil.ReleaseTypes.PRODUCTION.equals(RELEASE_TYPE)) {
+                        if (BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(RELEASE_TYPE)) {
                             sh 'git flow release finish ' + nextVersion + ' -p -m \"Fechando versão \"'
                         } else {
                             sh 'git flow release finish ' + nextVersion + ' --pushdevelop --pushtag -m \"Fechando versão \"'
