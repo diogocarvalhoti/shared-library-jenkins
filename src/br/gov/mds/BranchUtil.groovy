@@ -11,7 +11,7 @@ class BranchUtil {
 	}
 
 	enum VersionTypes {
-		MAJOR, MINOR, PATCH, PRODUCTION
+		MAJOR, MINOR, PATCH
 	}
 
 	enum ReleaseCandidateTypes {

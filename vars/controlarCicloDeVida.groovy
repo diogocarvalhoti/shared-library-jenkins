@@ -50,7 +50,7 @@ def call(args) {
             sh 'git config --global user.name \"Gerência de Configuração e Mudança\"'
         }
 
-        stage('Escolha o tipo de Branch') {
+        stage('Escolha o tipo de Branch \n FEATURE/HOTFIX/RELEASE') {
             timeout(5) {
                 TIPO = input message: 'Escolha o tipo de branch:',
                         parameters: [
@@ -62,11 +62,20 @@ def call(args) {
         if (TIPO == "RELEASE") {
             stage('Escolha o tipo de versionamento') {
                 timeout(5) {
-                    TYPE_VERSION = input message: 'Escolha o tipo de versionamento:',
+
+                    RELEASE_CANDIDATE = input message: 'Release Candidate:',
                             parameters: [
-                                    choice(choices: BranchUtil.VersionTypes.values().toList(),
-                                            description: '', name: 'typeVersion')
+                                    choice(choices: BranchUtil.ReleaseCandidateTypes.values().toList(),
+                                            description: 'Escolha a opção de Release candidate, caso não se aplique, selecione \"NA\"', name: 'release_candidate')
                             ]
+
+                    if (RELEASE_CANDIDATE != "EXISTENTE") {
+                        TYPE_VERSION = input message: 'Escolha o tipo de versionamento:',
+                                parameters: [
+                                        choice(choices: BranchUtil.VersionTypes.values().toList(),
+                                                description: '', name: 'typeVersion')
+                                ]
+                    }
                 }
             }
         } else {
@@ -115,15 +124,6 @@ def call(args) {
                     gitflow.createMR(idProject, FEATURE_NAME)
                 }
             } else if (TIPO == "RELEASE") {
-                def RELEASE_CANDIDATE
-                if (TYPE_VERSION != "PRODUCTION") {
-                    RELEASE_CANDIDATE = input message: 'Release Candidate:',
-                            parameters: [
-                                    choice(choices: BranchUtil.ReleaseCandidateTypes.values().toList(),
-                                            description: 'Escolha a opção de Release candidate, caso não se aplique, selecione \"NA\"', name: 'release_candidate')
-                            ]
-                }
-
                 def gitflow = new GitFlow()
                 Integer idProject = gitflow.getIdProject(namespace)
                 def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, RELEASE_CANDIDATE)
@@ -135,7 +135,6 @@ def call(args) {
                     sh 'git checkout develop'
                     sh 'git flow init -d'
                     sh 'git flow release start ' + nextVersion
-                    // sh 'git flow release publish ' + nextVersion
 
                     gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, nextVersion)
 
@@ -147,7 +146,7 @@ def call(args) {
 
                     sh 'git branch -a'
 
-                    if (TYPE_VERSION == "PRODUCTION") {
+                    if (RELEASE_CANDIDATE == "NA") {
                         sh 'git checkout stable'
                         sh 'git merge ' + nextVersion
                     }
