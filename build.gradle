@@ -1,5 +1,5 @@
+apply plugin: 'eclipse'
 apply plugin: 'groovy'
-apply plugin: 'idea'
 
 repositories {
 	maven { url "http://repo.maven.apache.org/maven2/" }
@@ -18,10 +18,18 @@ sourceSets {
 	}
 }
 
+//dependencies {
+//	groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.6.5'
+//	groovy group: 'com.cloudbees', name: 'groovy-cps', version: '1.31'
+//	groovy group: 'org.apache.ivy', name:'ivy', version:'2.2.0'
+//	groovy group: 'com.github.zafarkhaja', name:'java-semver', version:'0.9.0'
+//	
+//}
+
 dependencies {
-	compile 'org.apache.ivy:ivy:2.0.0'
-	compile 'com.cloudbees:groovy-cps:1.24'
-	compile 'org.codehaus.groovy:groovy-all:2.5.7'
+	compile 'org.apache.ivy:ivy:2.2.0'
+	compile 'org.codehaus.groovy:groovy:2.5.8'
+	compile 'com.cloudbees:groovy-cps:1.31'
 	compile 'com.github.zafarkhaja:java-semver:0.9.0'
 
 	testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'

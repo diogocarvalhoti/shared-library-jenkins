@@ -113,4 +113,10 @@ public class GitFlow implements Serializable {
 		}
 		return steps
 	}
+	
+	public static void main(String[] args) {
+		def local = new GitFlow()
+		def next = local.getNextVersion(560, "MINOR", true)
+		println next
+	}
 }

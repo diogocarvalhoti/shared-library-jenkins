@@ -104,7 +104,7 @@ def call(args) {
 				} else {
 
 					def gitflow = new GitFlow()
-					def Integer idProject = gitflow.getIdProject(namespace)
+					Integer idProject = gitflow.getIdProject(namespace)
 
 					def FEATURE_NAME = input message: 'Escolha a feature:',
 					parameters: [
@@ -124,7 +124,7 @@ def call(args) {
 				}
 
 				def gitflow = new GitFlow()
-				def Integer idProject = gitflow.getIdProject(namespace)
+				Integer idProject = gitflow.getIdProject(namespace)
 				def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, isRC)
 
 				sshagent([
@@ -143,6 +143,10 @@ def call(args) {
 					sh 'git commit -m \"Versionando aplicação para a versão '+ nextVersion+ '\"'
 					sh 'git flow release finish -p -m \"Fechando versão \"'
 					sh 'unset GIT_MERGE_AUTOEDIT'
+
+					if(TYPE_VERSION == "PRODUCTION") {
+						sh 'git push origin stable'
+					}
 				}
 			}
 		}
