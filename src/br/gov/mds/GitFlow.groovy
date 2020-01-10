@@ -52,8 +52,8 @@ class GitFlow implements Serializable {
     String getNextVersion(Integer idProject, String semVerType, String rcType) {
         def ultimaTag = this.getUltimaTag(idProject)
 
-        if (rcType != null && rcType != "NA") {
-            if (rcType == "EXISTENTE") {
+        if (rcType != null && rcType != "PRODUCTION") {
+            if (rcType == "INCREMENT_CANDIDATE") {
                 Version version = Version.valueOf(ultimaTag);
                 return version.incrementPreReleaseVersion();
             } else {
