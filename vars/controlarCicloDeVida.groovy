@@ -35,7 +35,7 @@ def call(args) {
     args.pathArtefato = args.pathArtefato ?: './pom.xml'
 
     node {
-        stage('Checkout') {
+        stage('Checkout código fonte') {
             cleanWs()
             checkout([$class                           : 'GitSCM', branches: [[name: '*/develop']],
                       doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [
@@ -60,56 +60,54 @@ def call(args) {
             }
         }
 
-        stage('Executando ação') {
+        stage('Aplicando o fluxo') {
             def RELEASE_CANDIDATE
             def TYPE_VERSION
 
             if (TIPO == "RELEASE") {
-                stage('Escolha o tipo de versionamento') {
-                    timeout(5) {
+                timeout(5) {
 
-                        RELEASE_CANDIDATE = input message: 'Release Candidate:',
+                    RELEASE_CANDIDATE = input message: 'Release Candidate:',
+                            parameters: [
+                                    choice(choices: BranchUtil.ReleaseTypes.values().toList(),
+                                            description: 'Escolha a opção de Release candidate, caso não se aplique, selecione \"NA\"', name: 'release_candidate')
+                            ]
+
+                    if (RELEASE_CANDIDATE != "PRODUCTION") {
+                        TYPE_VERSION = input message: 'Escolha o tipo de versionamento:',
                                 parameters: [
-                                        choice(choices: BranchUtil.ReleaseTypes.values().toList(),
-                                                description: 'Escolha a opção de Release candidate, caso não se aplique, selecione \"NA\"', name: 'release_candidate')
+                                        choice(choices: BranchUtil.VersionTypes.values().toList(),
+                                                description: '', name: 'typeVersion')
                                 ]
+                    }
+                    def gitflow = new GitFlow()
+                    Integer idProject = gitflow.getIdProject(namespace)
+                    def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, RELEASE_CANDIDATE)
 
-                        if (RELEASE_CANDIDATE != "PRODUCTION") {
-                            TYPE_VERSION = input message: 'Escolha o tipo de versionamento:',
-                                    parameters: [
-                                            choice(choices: BranchUtil.VersionTypes.values().toList(),
-                                                    description: '', name: 'typeVersion')
-                                    ]
+                    sshagent([
+                            '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+                    ]) {
+                        sh 'git config --global http.sslVerify false'
+                        sh 'git checkout develop'
+                        sh 'git flow init -d'
+                        sh 'git flow release start ' + nextVersion
+
+                        gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, nextVersion)
+
+                        sh 'export GIT_MERGE_AUTOEDIT=no'
+                        sh 'git add .'
+                        sh 'git commit -m \"Versionando aplicação para a versão ' + nextVersion + '\"'
+                        sh 'git flow release finish -k ' + nextVersion + ' -p -m \"Fechando versão \"'
+                        sh 'unset GIT_MERGE_AUTOEDIT'
+
+                        sh 'git branch -a'
+
+                        if (RELEASE_CANDIDATE == "PRODUCTION") {
+                            sh 'git checkout stable'
+                            sh 'git merge ' + nextVersion
                         }
-                        def gitflow = new GitFlow()
-                        Integer idProject = gitflow.getIdProject(namespace)
-                        def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, RELEASE_CANDIDATE)
-
-                        sshagent([
-                                '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
-                        ]) {
-                            sh 'git config --global http.sslVerify false'
-                            sh 'git checkout develop'
-                            sh 'git flow init -d'
-                            sh 'git flow release start ' + nextVersion
-
-                            gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, nextVersion)
-
-                            sh 'export GIT_MERGE_AUTOEDIT=no'
-                            sh 'git add .'
-                            sh 'git commit -m \"Versionando aplicação para a versão ' + nextVersion + '\"'
-                            sh 'git flow release finish -k ' + nextVersion + ' -p -m \"Fechando versão \"'
-                            sh 'unset GIT_MERGE_AUTOEDIT'
-
-                            sh 'git branch -a'
-
-                            if (RELEASE_CANDIDATE == "PRODUCTION") {
-                                sh 'git checkout stable'
-                                sh 'git merge ' + nextVersion
-                            }
-                            sh 'git branch -D release/' + nextVersion
-                            sh 'git push'
-                        }
+                        sh 'git branch -D release/' + nextVersion
+                        sh 'git push'
                     }
                 }
             } else if (TIPO == "FEATURE" || TIPO == "HOTFIX") {
@@ -152,9 +150,7 @@ def call(args) {
                         }
                     }
                 }
-
             }
-
         }
     }
 }
