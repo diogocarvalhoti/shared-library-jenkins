@@ -52,8 +52,10 @@ class GitFlow implements Serializable {
     String getNextVersion(Integer idProject, String semVerType, String rcType) {
         def ultimaTag = this.getUltimaTag(idProject)
 
-        if (rcType != null && rcType != "PRODUCTION") {
-            if (rcType == "INCREMENT_CANDIDATE") {
+        if (BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(rcType)) {
+            return ultimaTag.split(RC)[0]
+        } else {
+            if (BranchUtil.ReleaseTypes.INCREMENT_CANDIDATE.toString().equals(rcType)) {
                 Version version = Version.valueOf(ultimaTag);
                 return version.incrementPreReleaseVersion();
             } else {
@@ -61,11 +63,13 @@ class GitFlow implements Serializable {
                 Version version = Version.valueOf(nextVersion.concat(RC));
                 return version.incrementPreReleaseVersion();
             }
-        } else if (BranchUtil.VersionTypes.PRODUCTION.toString().equals(semVerType)) {
-            return ultimaTag.split(RC)[0]
         }
 
-        return incrementarVersao(ultimaTag, semVerType)
+//        } else if (rcType != "PRODUCTION") {
+//            return ultimaTag.split(RC)[0]
+//        }
+//
+//        return incrementarVersao(ultimaTag, semVerType)
     }
 
     @NonCPS
