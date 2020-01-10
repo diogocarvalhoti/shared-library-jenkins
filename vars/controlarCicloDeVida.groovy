@@ -149,10 +149,10 @@ def call(args) {
 
                     if (TYPE_VERSION == "PRODUCTION") {
                         sh 'git checkout stable'
-                        sh 'git merge release/' + nextVersion
+                        sh 'git merge ' + nextVersion
                     }
                     sh 'git branch -D release/' + nextVersion
-                    sh 'git push --all origin'
+                    sh 'git push'
                 }
             }
         }
