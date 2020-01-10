@@ -64,7 +64,7 @@ def call(args) {
 				timeout(5) {
 					TYPE_VERSION = input message: 'Escolha o tipo de versionamento:',
 					parameters: [
-						choice(choices: BranchUtil.TypesVersion.values().toList(),
+						choice(choices: BranchUtil.VersionTypes.values().toList(),
 						description: '', name: 'typeVersion')
 					]
 				}
@@ -115,17 +115,18 @@ def call(args) {
 					gitflow.createMR(idProject, FEATURE_NAME)
 				}
 			} else if(TIPO == "RELEASE"){
-				boolean isRC = Boolean.FALSE;
+				def RELEASE_CANDIDATE
 				if(TYPE_VERSION != "PRODUCTION") {
-					isRC = input message: 'É uma Release Canditate?',
-					parameters: [
-						booleanParam(defaultValue: false, description: '', name: 'Release Candidate')
-					]
+					RELEASE_CANDIDATE = input message: 'Release Candidate:',
+							parameters: [
+									choice(choices: BranchUtil.ReleaseCandidateTypes.values().toList(),
+											description: 'Escolha a opção de Release candidate, caso não se aplique, selecione \"NA\"', name: 'release_candidate')
+							]
 				}
 
 				def gitflow = new GitFlow()
 				Integer idProject = gitflow.getIdProject(namespace)
-				def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, isRC)
+				def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, RELEASE_CANDIDATE)
 
 				sshagent([
 					'3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'

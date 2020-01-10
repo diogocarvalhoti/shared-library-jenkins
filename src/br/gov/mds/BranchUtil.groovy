@@ -1,17 +1,21 @@
 package br.gov.mds
 
-public class BranchUtil {
+class BranchUtil {
 	
-	public enum Types {
+	enum Types {
 		FEATURE, HOTFIX, RELEASE
 	}
 	
-	public enum Actions {
+	enum Actions {
 		START, FINISH
 	}
 
-	public enum TypesVersion {
+	enum VersionTypes {
 		MAJOR, MINOR, PATCH, PRODUCTION
+	}
+
+	enum ReleaseCandidateTypes {
+		NA, EXISTENTE, NOVA
 	}
 	
 }
