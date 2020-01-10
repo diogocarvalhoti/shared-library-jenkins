@@ -61,6 +61,8 @@ def call(args) {
         }
 
         stage('Aplicando o fluxo') {
+            def RELEASE_TYPE
+            def TYPE_VERSION
             if (BranchUtil.Types.RELEASE.toString().equals(TIPO)) {
                 timeout(5) {
 
