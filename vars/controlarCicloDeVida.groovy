@@ -142,12 +142,14 @@ def call(args) {
 					sh 'export GIT_MERGE_AUTOEDIT=no'
 					sh 'git add .'
 					sh 'git commit -m \"Versionando aplicação para a versão '+ nextVersion+ '\"'
-					sh 'git flow release finish -p -m \"Fechando versão \"'
+					sh 'git flow release finish -p -m -k \"Fechando versão \"'
 					sh 'unset GIT_MERGE_AUTOEDIT'
 
 					if(TYPE_VERSION == "PRODUCTION") {
-						sh 'git push origin stable'
+						sh 'git checkout stable'
+						sh 'git merge release/'+nextVersion
 					}
+					sh 'git branch -D release/'+nextVersion
 				}
 			}
 		}
