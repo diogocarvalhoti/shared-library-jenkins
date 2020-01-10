@@ -61,6 +61,9 @@ def call(args) {
         }
 
         stage('Executando ação') {
+            def RELEASE_CANDIDATE
+            def TYPE_VERSION
+
             if (TIPO == "RELEASE") {
                 stage('Escolha o tipo de versionamento') {
                     timeout(5) {
@@ -78,36 +81,35 @@ def call(args) {
                                                     description: '', name: 'typeVersion')
                                     ]
                         }
-                    }
+                        def gitflow = new GitFlow()
+                        Integer idProject = gitflow.getIdProject(namespace)
+                        def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, RELEASE_CANDIDATE)
 
-                    def gitflow = new GitFlow()
-                    Integer idProject = gitflow.getIdProject(namespace)
-                    def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, RELEASE_CANDIDATE)
+                        sshagent([
+                                '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+                        ]) {
+                            sh 'git config --global http.sslVerify false'
+                            sh 'git checkout develop'
+                            sh 'git flow init -d'
+                            sh 'git flow release start ' + nextVersion
 
-                    sshagent([
-                            '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
-                    ]) {
-                        sh 'git config --global http.sslVerify false'
-                        sh 'git checkout develop'
-                        sh 'git flow init -d'
-                        sh 'git flow release start ' + nextVersion
+                            gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, nextVersion)
 
-                        gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, nextVersion)
+                            sh 'export GIT_MERGE_AUTOEDIT=no'
+                            sh 'git add .'
+                            sh 'git commit -m \"Versionando aplicação para a versão ' + nextVersion + '\"'
+                            sh 'git flow release finish -k ' + nextVersion + ' -p -m \"Fechando versão \"'
+                            sh 'unset GIT_MERGE_AUTOEDIT'
 
-                        sh 'export GIT_MERGE_AUTOEDIT=no'
-                        sh 'git add .'
-                        sh 'git commit -m \"Versionando aplicação para a versão ' + nextVersion + '\"'
-                        sh 'git flow release finish -k ' + nextVersion + ' -p -m \"Fechando versão \"'
-                        sh 'unset GIT_MERGE_AUTOEDIT'
+                            sh 'git branch -a'
 
-                        sh 'git branch -a'
-
-                        if (RELEASE_CANDIDATE == "PRODUCTION") {
-                            sh 'git checkout stable'
-                            sh 'git merge ' + nextVersion
+                            if (RELEASE_CANDIDATE == "PRODUCTION") {
+                                sh 'git checkout stable'
+                                sh 'git merge ' + nextVersion
+                            }
+                            sh 'git branch -D release/' + nextVersion
+                            sh 'git push'
                         }
-                        sh 'git branch -D release/' + nextVersion
-                        sh 'git push'
                     }
                 }
             } else if (TIPO == "FEATURE" || TIPO == "HOTFIX") {
@@ -117,41 +119,39 @@ def call(args) {
                                     choice(choices: BranchUtil.Actions.values().toList(),
                                             description: '', name: 'acao')
                             ]
-                }
+                    if (TIPO == "FEATURE") {
+                        if (ACAO == "START") {
+                            FEATURE_NAME = input(
+                                    id: 'userInput', message: 'Nome da feature',
+                                    parameters: [
+                                            string(
+                                                    description: 'Nome da feature',
+                                                    name: 'Nome da feature'
+                                            )
+                                    ])
+                            sshagent([
+                                    '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+                            ]) {
+                                sh 'git config --global http.sslVerify false'
+                                sh 'git checkout develop'
+                                sh 'git flow init -d'
+                                sh 'git flow feature start ' + FEATURE_NAME + ' develop'
+                                sh 'git flow feature publish ' + FEATURE_NAME
+                            }
+                        } else {
+                            def gitflow = new GitFlow()
+                            Integer idProject = gitflow.getIdProject(namespace)
 
-                if (TIPO == "FEATURE") {
-                    if (ACAO == "START") {
-                        FEATURE_NAME = input(
-                                id: 'userInput', message: 'Nome da feature',
-                                parameters: [
-                                        string(
-                                                description: 'Nome da feature',
-                                                name: 'Nome da feature'
-                                        )
-                                ])
-                        sshagent([
-                                '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
-                        ]) {
-                            sh 'git config --global http.sslVerify false'
-                            sh 'git checkout develop'
-                            sh 'git flow init -d'
-                            sh 'git flow feature start ' + FEATURE_NAME + ' develop'
-                            sh 'git flow feature publish ' + FEATURE_NAME
+                            def FEATURE_NAME = input message: 'Escolha a feature:',
+                                    parameters: [
+                                            choice(choices: gitflow.getFeatures(idProject),
+                                                    description: '', name: 'feature')
+                                    ]
+
+                            gitflow.createMR(idProject, FEATURE_NAME)
                         }
-                    } else {
-                        def gitflow = new GitFlow()
-                        Integer idProject = gitflow.getIdProject(namespace)
-
-                        def FEATURE_NAME = input message: 'Escolha a feature:',
-                                parameters: [
-                                        choice(choices: gitflow.getFeatures(idProject),
-                                                description: '', name: 'feature')
-                                ]
-
-                        gitflow.createMR(idProject, FEATURE_NAME)
                     }
                 }
-
 
             }
 
