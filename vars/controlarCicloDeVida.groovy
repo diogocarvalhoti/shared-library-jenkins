@@ -7,152 +7,155 @@ import java.util.regex.Pattern
 import br.gov.mds.BranchUtil
 
 def validarParametros(args) {
-	if(!args.gitRepositorySSH) {
-		println "O parâmetro gitRepositorySSH é obrigatório"
-		return
-	}
+    if (!args.gitRepositorySSH) {
+        println "O parâmetro gitRepositorySSH é obrigatório"
+        return
+    }
 }
 
 def recuperarNamespace(repository) {
-	final String regex = "\\:(.*?).git";
+    final String regex = "\\:(.*?).git";
 
-	final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
-	final Matcher matcher = pattern.matcher(repository);
+    final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+    final Matcher matcher = pattern.matcher(repository);
 
-	while (matcher.find()) {
-		return matcher.group(1).replace("/", "%2F");
-	}
-	return ""
+    while (matcher.find()) {
+        return matcher.group(1).replace("/", "%2F");
+    }
+    return ""
 }
 
 def call(args) {
 
-	validarParametros(args)
+    validarParametros(args)
 
-	def namespace = recuperarNamespace(args.gitRepositorySSH)
+    def namespace = recuperarNamespace(args.gitRepositorySSH)
 
-	args.linguagem = args.linguagem ?: 'JAVA'
-	args.pathArtefato = args.pathArtefato ?: './pom.xml'
+    args.linguagem = args.linguagem ?: 'JAVA'
+    args.pathArtefato = args.pathArtefato ?: './pom.xml'
 
-	node {
-		stage('Checkout') {
-			cleanWs()
-			checkout([$class: 'GitSCM', branches: [[name: '*/develop']],
-				doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [
-					[
-						credentialsId: '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f',
-						refspec: '+refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*',
-						url: args.gitRepositorySSH]
-				]]
-			)
+    node {
+        stage('Checkout') {
+            cleanWs()
+            checkout([$class                           : 'GitSCM', branches: [[name: '*/develop']],
+                      doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [
+                    [
+                            credentialsId: '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f',
+                            refspec      : '+refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*',
+                            url          : args.gitRepositorySSH]
+            ]]
+            )
 
-			sh 'git config --global user.email \"gcm_cgsi@cidadania.gov.br\"'
-			sh 'git config --global user.name \"Gerência de Configuração e Mudança\"'
-		}
+            sh 'git config --global user.email \"gcm_cgsi@cidadania.gov.br\"'
+            sh 'git config --global user.name \"Gerência de Configuração e Mudança\"'
+        }
 
-		stage('Escolha o tipo de Branch') {
-			timeout(5) {
-				TIPO = input message: 'Escolha o tipo de branch:',
-				parameters: [
-					choice(choices: BranchUtil.Types.values().toList(),
-					description: '', name: 'tipo')
-				]
-			}
-		}
-		if(TIPO == "RELEASE"){
-			stage('Escolha o tipo de versionamento') {
-				timeout(5) {
-					TYPE_VERSION = input message: 'Escolha o tipo de versionamento:',
-					parameters: [
-						choice(choices: BranchUtil.VersionTypes.values().toList(),
-						description: '', name: 'typeVersion')
-					]
-				}
-			}
-		} else {
-			stage('Escolha a ação') {
-				timeout(5) {
-					ACAO = input message: 'Escolha a ação:',
-					parameters: [
-						choice(choices: BranchUtil.Actions.values().toList(),
-						description: '', name: 'acao')
-					]
-				}
-			}
-		}
+        stage('Escolha o tipo de Branch') {
+            timeout(5) {
+                TIPO = input message: 'Escolha o tipo de branch:',
+                        parameters: [
+                                choice(choices: BranchUtil.Types.values().toList(),
+                                        description: '', name: 'tipo')
+                        ]
+            }
+        }
+        if (TIPO == "RELEASE") {
+            stage('Escolha o tipo de versionamento') {
+                timeout(5) {
+                    TYPE_VERSION = input message: 'Escolha o tipo de versionamento:',
+                            parameters: [
+                                    choice(choices: BranchUtil.VersionTypes.values().toList(),
+                                            description: '', name: 'typeVersion')
+                            ]
+                }
+            }
+        } else {
+            stage('Escolha a ação') {
+                timeout(5) {
+                    ACAO = input message: 'Escolha a ação:',
+                            parameters: [
+                                    choice(choices: BranchUtil.Actions.values().toList(),
+                                            description: '', name: 'acao')
+                            ]
+                }
+            }
+        }
 
-		stage('Executando ação') {
-			if(TIPO == "FEATURE"){
-				if(ACAO == "START") {
-					FEATURE_NAME = input(
-							id: 'userInput', message: 'Nome da feature',
-							parameters: [
-								string(
-								description: 'Nome da feature',
-								name: 'Nome da feature'
-								)
-							])
-					sshagent([
-						'3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
-					]) {
-						sh 'git config --global http.sslVerify false'
-						sh 'git checkout develop'
-						sh 'git flow init -d'
-						sh 'git flow feature start '+FEATURE_NAME +' develop'
-						sh 'git flow feature publish '+FEATURE_NAME
-					}
-				} else {
+        stage('Executando ação') {
+            if (TIPO == "FEATURE") {
+                if (ACAO == "START") {
+                    FEATURE_NAME = input(
+                            id: 'userInput', message: 'Nome da feature',
+                            parameters: [
+                                    string(
+                                            description: 'Nome da feature',
+                                            name: 'Nome da feature'
+                                    )
+                            ])
+                    sshagent([
+                            '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+                    ]) {
+                        sh 'git config --global http.sslVerify false'
+                        sh 'git checkout develop'
+                        sh 'git flow init -d'
+                        sh 'git flow feature start ' + FEATURE_NAME + ' develop'
+                        sh 'git flow feature publish ' + FEATURE_NAME
+                    }
+                } else {
 
-					def gitflow = new GitFlow()
-					Integer idProject = gitflow.getIdProject(namespace)
+                    def gitflow = new GitFlow()
+                    Integer idProject = gitflow.getIdProject(namespace)
 
-					def FEATURE_NAME = input message: 'Escolha a feature:',
-					parameters: [
-						choice(choices: gitflow.getFeatures(idProject),
-						description: '', name: 'feature')
-					]
+                    def FEATURE_NAME = input message: 'Escolha a feature:',
+                            parameters: [
+                                    choice(choices: gitflow.getFeatures(idProject),
+                                            description: '', name: 'feature')
+                            ]
 
-					gitflow.createMR(idProject, FEATURE_NAME)
-				}
-			} else if(TIPO == "RELEASE"){
-				def RELEASE_CANDIDATE
-				if(TYPE_VERSION != "PRODUCTION") {
-					RELEASE_CANDIDATE = input message: 'Release Candidate:',
-							parameters: [
-									choice(choices: BranchUtil.ReleaseCandidateTypes.values().toList(),
-											description: 'Escolha a opção de Release candidate, caso não se aplique, selecione \"NA\"', name: 'release_candidate')
-							]
-				}
+                    gitflow.createMR(idProject, FEATURE_NAME)
+                }
+            } else if (TIPO == "RELEASE") {
+                def RELEASE_CANDIDATE
+                if (TYPE_VERSION != "PRODUCTION") {
+                    RELEASE_CANDIDATE = input message: 'Release Candidate:',
+                            parameters: [
+                                    choice(choices: BranchUtil.ReleaseCandidateTypes.values().toList(),
+                                            description: 'Escolha a opção de Release candidate, caso não se aplique, selecione \"NA\"', name: 'release_candidate')
+                            ]
+                }
 
-				def gitflow = new GitFlow()
-				Integer idProject = gitflow.getIdProject(namespace)
-				def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, RELEASE_CANDIDATE)
+                def gitflow = new GitFlow()
+                Integer idProject = gitflow.getIdProject(namespace)
+                def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, RELEASE_CANDIDATE)
 
-				sshagent([
-					'3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
-				]) {
-					sh 'git config --global http.sslVerify false'
-					sh 'git checkout develop'
-					sh 'git flow init -d'
-					sh 'git flow release start ' + nextVersion
-					sh 'git flow release publish'
+                sshagent([
+                        '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+                ]) {
+                    sh 'git config --global http.sslVerify false'
+                    sh 'git checkout develop'
+                    sh 'git flow init -d'
+                    sh 'git flow release start ' + nextVersion
+                    // sh 'git flow release publish ' + nextVersion
 
-					gitflow.versionarArtefato(this,args.linguagem, args.pathArtefato, nextVersion)
+                    gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, nextVersion)
 
-					sh 'export GIT_MERGE_AUTOEDIT=no'
-					sh 'git add .'
-					sh 'git commit -m \"Versionando aplicação para a versão '+ nextVersion+ '\"'
-					sh 'git flow release finish -p -m -k \"Fechando versão \"'
-					sh 'unset GIT_MERGE_AUTOEDIT'
+                    sh 'export GIT_MERGE_AUTOEDIT=no'
+                    sh 'git add .'
+                    sh 'git commit -m \"Versionando aplicação para a versão ' + nextVersion + '\"'
+                    sh 'git flow release finish -k ' + nextVersion + ' -p -m \"Fechando versão \"'
+                    sh 'unset GIT_MERGE_AUTOEDIT'
 
-					if(TYPE_VERSION == "PRODUCTION") {
-						sh 'git checkout stable'
-						sh 'git merge release/'+nextVersion
-					}
-					sh 'git branch -D release/'+nextVersion
-				}
-			}
-		}
-	}
+                    sh 'git branch -a'
+
+                    if (TYPE_VERSION == "PRODUCTION") {
+                        sh 'git checkout stable'
+                        sh 'git merge release/' + nextVersion
+                    }
+                    sh 'git branch -D release/' + nextVersion
+                    sh 'git push --all origin'
+                }
+            }
+        }
+    }
 }
 
