@@ -71,7 +71,7 @@ def call(args) {
                                                 description: 'Escolha a opção de Release candidate, caso não se aplique, selecione \"NA\"', name: 'release_candidate')
                                 ]
 
-                        if (RELEASE_CANDIDATE != "EXISTENTE") {
+                        if (RELEASE_CANDIDATE != "PRODUCTION") {
                             TYPE_VERSION = input message: 'Escolha o tipo de versionamento:',
                                     parameters: [
                                             choice(choices: BranchUtil.VersionTypes.values().toList(),
@@ -102,7 +102,7 @@ def call(args) {
 
                         sh 'git branch -a'
 
-                        if (RELEASE_CANDIDATE == "NA") {
+                        if (RELEASE_CANDIDATE == "PRODUCTION") {
                             sh 'git checkout stable'
                             sh 'git merge ' + nextVersion
                         }
