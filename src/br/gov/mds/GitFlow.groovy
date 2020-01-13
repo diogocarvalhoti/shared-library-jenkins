@@ -45,7 +45,8 @@ class GitFlow implements Serializable {
 
         for (branch in branches) {
             String nomeBranch = branch.getAt("name");
-            if (nomeBranch.toUpperCase().startsWith(branchType.toString())) {
+            if (nomeBranch.toUpperCase().startsWith(branchType.toString()) &&
+                    !nomeBranch.toUpperCase().endsWith("fabrica")) {
                 features.add(nomeBranch);
             }
         }

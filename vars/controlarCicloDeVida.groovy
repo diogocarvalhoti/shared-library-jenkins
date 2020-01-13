@@ -192,13 +192,13 @@ void flowHotfix(namespace, args) {
             sh 'git flow hotfix start ' + nextVersion
             sh 'git flow hotfix publish '+ nextVersion
 
-            sh 'git branch -b hotfix/' + nextVersion + '/fabrica'
-            sh 'git push'
+            sh 'git checkout -b hotfix/' + nextVersion + '-fabrica'
+            sh 'git push --set-upstream origin hotfix/' + nextVersion + '-fabrica'
         }
     } else {
         println 'FINISH'
         String hotfixName = gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.HOTFIX.toString()).get(0);
-        String version = hotfixName.replace("hotfix/")
+        String version = hotfixName.replace("hotfix/", "")
 
         sshagent([
                 '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
@@ -217,7 +217,7 @@ void flowHotfix(namespace, args) {
             sh 'git flow hotfix publish hotfix/' + version
 
             sh 'unset GIT_MERGE_AUTOEDIT'
-            sh 'git branch -D ' + hotfixName + '/fabrica'
+            sh 'git branch -D ' + hotfixName + '-fabrica'
 
             sh 'git push'
         }
