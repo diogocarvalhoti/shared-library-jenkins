@@ -169,9 +169,10 @@ void flowHotfix(namespace, args) {
 
         println 'START'
         String typeVersion = BranchUtil.VersionTypes.PATCH.toString()
-        String releaseType = BranchUtil.ReleaseTypes.PRODUCTION.toString()
 
-        def nextVersion = gitflow.getNextVersion(idProject, typeVersion, releaseType)
+        def ultimaTagProduction = gitflow.getUltimaTagPorTipo(idProject, BranchUtil.ReleaseTypes.PRODUCTION.toString())
+
+        def nextVersion = gitflow.incrementarVersao(ultimaTagProduction, typeVersion)
 
         println 'VERSION: '+ nextVersion
 //        FEATURE_NAME = input(

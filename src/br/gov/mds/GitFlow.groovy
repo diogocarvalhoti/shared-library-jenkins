@@ -36,23 +36,6 @@ class GitFlow implements Serializable {
     }
 
     @NonCPS
-    List<String> getFeatures(Integer idProject) {
-        String uri = new StringBuilder(this.BASE_URL)
-                .append("/api/v4/projects/").append(idProject).append("/repository/branches").toString()
-        List branches = GitRestClient.get(uri, this.PRIVATE_TOKEN)
-
-        List<String> features = new ArrayList();
-
-        for (branch in branches) {
-            String nomeBranch = branch.getAt("name");
-            if (nomeBranch.startsWith("feature/")) {
-                features.add(nomeBranch);
-            }
-        }
-        return features;
-    }
-
-    @NonCPS
     List<String> getBranchesPorTipo(Integer idProject, String branchType) {
         String uri = new StringBuilder(this.BASE_URL)
                 .append("/api/v4/projects/").append(idProject).append("/repository/branches").toString()
@@ -88,7 +71,7 @@ class GitFlow implements Serializable {
     }
 
     @NonCPS
-    private String incrementarVersao(String ultimaVersao, String semVerType) {
+    String incrementarVersao(String ultimaVersao, String semVerType) {
         Version version = Version.valueOf(ultimaVersao);
         if (BranchUtil.VersionTypes.MAJOR.toString().equals(semVerType)) {
             return version.incrementMajorVersion()
@@ -100,7 +83,7 @@ class GitFlow implements Serializable {
     }
 
     @NonCPS
-    private String getUltimaTagPorTipo(Integer idProject, String releaseType = BranchUtil.ReleaseTypes.PRODUCTION.toString()) {
+    String getUltimaTagPorTipo(Integer idProject, String releaseType = null) {
         String uri = new StringBuilder(this.BASE_URL)
                 .append("/api/v4/projects/").append(idProject)
                 .append("/repository/tags").append("?order_by=name").toString();
@@ -119,16 +102,16 @@ class GitFlow implements Serializable {
                     } else {
                         return name
                     }
-                } else {
+                } else if (BranchUtil.ReleaseTypes.CANDIDATE.toString().equals(releaseType)) {
                     if (name.contains(RC)) {
                         return name
                     } else {
                         continue
                     }
+                } else {
+                    return name
                 }
             }
-
-            return tag.get("name")
         }
         return "0.0.0"
     }

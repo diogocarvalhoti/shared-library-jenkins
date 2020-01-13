@@ -15,7 +15,7 @@ class BranchUtil {
     }
 
     enum ReleaseTypes {
-        PRODUCTION, NEW_CANDIDATE, INCREMENT_CANDIDATE
+        PRODUCTION, CANDIDATE, INCREMENT_CANDIDATE
     }
 
 }
