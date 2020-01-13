@@ -53,7 +53,7 @@ class GitFlow implements Serializable {
     }
 
     @NonCPS
-    List<String> getBranchesPorTipo(Integer idProject, BranchUtil.Types branchType) {
+    List<String> getBranchesPorTipo(Integer idProject, String branchType) {
         String uri = new StringBuilder(this.BASE_URL)
                 .append("/api/v4/projects/").append(idProject).append("/repository/branches").toString()
         List branches = GitRestClient.get(uri, this.PRIVATE_TOKEN)

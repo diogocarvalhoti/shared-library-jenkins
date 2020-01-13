@@ -64,7 +64,7 @@ def call(args) {
             } else if (BranchUtil.Types.FEATURE.toString().equals(TIPO) || BranchUtil.Types.HOTFIX.toString().equals(TIPO)) {
                 flowFeature(namespace)
             } else {
-                flowHotfix()
+                flowHotfix(namespace, args)
             }
         }
     }
@@ -101,7 +101,7 @@ void flowFeature(namespace) {
 
             def FEATURE_NAME = input message: 'Escolha a feature:',
                     parameters: [
-                            choice(choices: gitflow.getFeatures(idProject),
+                            choice(choices: gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.FEATURE.toString()),
                                     description: '', name: 'feature')
                     ]
 
@@ -192,7 +192,7 @@ void flowHotfix(namespace, args) {
             sh 'git push'
         }
     } else {
-        String hotfixName = gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.FEATURE).get(0);
+        String hotfixName = gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.HOTFIX.toString()).get(0);
         String version = hotfixName.replace("hotfix/")
 
         sshagent([
