@@ -174,7 +174,7 @@ void flowHotfix(namespace, args) {
 
         def nextVersion = gitflow.incrementarVersao(ultimaTagProduction, typeVersion)
 
-        println 'VERSION: '+ nextVersion
+        println 'VERSION: ' + nextVersion
 //        FEATURE_NAME = input(
 //                id: 'userInput', message: 'Nome da feature',
 //                parameters: [
@@ -190,7 +190,7 @@ void flowHotfix(namespace, args) {
             sh 'git checkout master'
             sh 'git flow init -d'
             sh 'git flow hotfix start ' + nextVersion
-            sh 'git flow hotfix publish '+ nextVersion
+            sh 'git flow hotfix publish ' + nextVersion
 
             sh 'git checkout -b hotfix/' + nextVersion + '-fabrica'
             sh 'git push --set-upstream origin hotfix/' + nextVersion + '-fabrica'
@@ -204,7 +204,8 @@ void flowHotfix(namespace, args) {
                 '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
         ]) {
             sh 'git config --global http.sslVerify false'
-            sh 'git checkout hotfix/' + version
+            sh 'git checkout master'
+            sh 'git pull --all'
             sh 'git flow init -d'
 
             gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, version)
@@ -214,12 +215,11 @@ void flowHotfix(namespace, args) {
             sh 'git commit -m \"Versionando aplicação para a versão ' + version + '\"'
 
             sh 'git flow hotfix finish -p -m \"Fechando versão hotfix \"' + version
-            sh 'git flow hotfix publish hotfix/' + version
 
             sh 'unset GIT_MERGE_AUTOEDIT'
             sh 'git branch -D ' + hotfixName + '-fabrica'
 
-            sh 'git push'
+//            sh 'git push'
         }
     }
 }
