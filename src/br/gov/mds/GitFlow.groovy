@@ -22,11 +22,11 @@ class GitFlow implements Serializable {
     }
 
     @NonCPS
-    String createMR(Integer idProject, String sourceBranch) {
+    String createMR(Integer idProject, String sourceBranch, String targetBranch = "develop") {
         Map<String, String> params = new HashMap();
         params.put("remove_source_branch", "true");
         params.put("source_branch", sourceBranch);
-        params.put("target_branch", "develop");
+        params.put("target_branch", targetBranch);
         params.put("title", "Merge Request da branch: " + sourceBranch);
 
         String uri = new StringBuilder(this.BASE_URL)
@@ -46,6 +46,23 @@ class GitFlow implements Serializable {
         for (branch in branches) {
             String nomeBranch = branch.getAt("name");
             if (nomeBranch.startsWith("feature/")) {
+                features.add(nomeBranch);
+            }
+        }
+        return features;
+    }
+
+    @NonCPS
+    List<String> getBranchesPorTipo(Integer idProject, BranchUtil.Types branchType) {
+        String uri = new StringBuilder(this.BASE_URL)
+                .append("/api/v4/projects/").append(idProject).append("/repository/branches").toString()
+        List branches = GitRestClient.get(uri, this.PRIVATE_TOKEN)
+
+        List<String> features = new ArrayList();
+
+        for (branch in branches) {
+            String nomeBranch = branch.getAt("name");
+            if (nomeBranch.toUpperCase().startsWith(branchType.toString())) {
                 features.add(nomeBranch);
             }
         }

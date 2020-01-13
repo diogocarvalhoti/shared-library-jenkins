@@ -63,6 +63,8 @@ def call(args) {
                 flowRelease(namespace, args)
             } else if (BranchUtil.Types.FEATURE.toString().equals(TIPO) || BranchUtil.Types.HOTFIX.toString().equals(TIPO)) {
                 flowFeature(namespace)
+            } else {
+                flowHotfix()
             }
         }
     }
@@ -150,5 +152,69 @@ void flowRelease(namespace, args) {
 
         sh 'unset GIT_MERGE_AUTOEDIT'
         sh 'git push'
+    }
+}
+
+void flowHotfix(namespace, args) {
+    ACAO = input message: 'Escolha a ação:',
+            parameters: [
+                    choice(choices: BranchUtil.Actions.values().toList(),
+                            description: '', name: 'acao')
+            ]
+
+    def gitflow = new GitFlow()
+    Integer idProject = gitflow.getIdProject(namespace)
+
+    if (BranchUtil.Actions.START.toString().equals(ACAO)) {
+        typeVersion = BranchUtil.VersionTypes.PATCH.toString()
+        releaseType = BranchUtil.ReleaseTypes.PRODUCTION.toString()
+
+        def nextVersion = gitflow.getNextVersion(idProject, typeVersion, releaseType)
+
+        FEATURE_NAME = input(
+                id: 'userInput', message: 'Nome da feature',
+                parameters: [
+                        string(
+                                description: 'Nome da feature',
+                                name: 'Nome da feature'
+                        )
+                ])
+        sshagent([
+                '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+        ]) {
+            sh 'git config --global http.sslVerify false'
+            sh 'git checkout master'
+            sh 'git flow init -d'
+            sh 'git flow hotfix start ' + nextVersion
+            sh 'git flow hotfix publish hotfix/' + nextVersion
+
+            sh 'git branch -b hotfix/' + version + '/fabrica'
+            sh 'git push'
+        }
+    } else {
+        String hotfixName = gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.FEATURE).get(0);
+        String version = hotfixName.replace("hotfix/")
+
+        sshagent([
+                '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+        ]) {
+            sh 'git config --global http.sslVerify false'
+            sh 'git checkout hotfix/' + version
+            sh 'git flow init -d'
+
+            gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, version)
+
+            sh 'export GIT_MERGE_AUTOEDIT=no'
+            sh 'git add .'
+            sh 'git commit -m \"Versionando aplicação para a versão ' + version + '\"'
+
+            sh 'git flow hotfix finish -p -m \"Fechando versão hotfix \"' + version
+            sh 'git flow hotfix publish hotfix/' + version
+
+            sh 'unset GIT_MERGE_AUTOEDIT'
+            sh 'git branch -D ' + hotfixName + '/fabrica'
+
+            sh 'git push'
+        }
     }
 }
