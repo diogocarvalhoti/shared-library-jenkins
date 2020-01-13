@@ -60,9 +60,9 @@ def call(args) {
 
         stage('Aplicando fluxo') {
             if (BranchUtil.Types.RELEASE.toString().equals(TIPO)) {
-                flowRelease()
+                flowRelease(namespace)
             } else if (BranchUtil.Types.FEATURE.toString().equals(TIPO) || BranchUtil.Types.HOTFIX.toString().equals(TIPO)) {
-                flowFeature()
+                flowFeature(namespace)
             }
         }
     }
