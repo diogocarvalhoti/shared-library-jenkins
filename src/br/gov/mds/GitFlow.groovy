@@ -52,7 +52,7 @@ class GitFlow implements Serializable {
         return features;
     }
 
-
+    @NonCPS
     String getNextVersion(Integer idProject, String semVerType, String rcType) {
         def ultimaTag = this.getUltimaTag(idProject)
 
