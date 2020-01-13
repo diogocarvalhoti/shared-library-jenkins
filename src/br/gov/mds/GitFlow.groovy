@@ -8,10 +8,12 @@ import com.github.zafarkhaja.semver.Version
 class GitFlow implements Serializable {
 
     private static final String BASE_URL = "http://sugitpd02.mds.net"
-    private static final String PRIVATE_TOKEN = "u3xBWdP3KUxxG7PQYm_t"
 
+    //TOKEN GERADO PARA O USUARIO gcm_cgsi
+    private static final String PRIVATE_TOKEN = "u3xBWdP3KUxxG7PQYm_t"
     private static final String RC = "-rc"
 
+    @NonCPS
     Integer getIdProject(String namespace) {
         String uri = new StringBuilder(this.BASE_URL)
                 .append("/api/v4/projects/").append(namespace).toString()
@@ -19,6 +21,7 @@ class GitFlow implements Serializable {
         return resultMap.get("id")
     }
 
+    @NonCPS
     String createMR(Integer idProject, String sourceBranch) {
         Map<String, String> params = new HashMap();
         params.put("remove_source_branch", "true");
@@ -32,6 +35,7 @@ class GitFlow implements Serializable {
         return GitRestClient.post(uri, this.PRIVATE_TOKEN, params)
     }
 
+    @NonCPS
     List<String> getFeatures(Integer idProject) {
         String uri = new StringBuilder(this.BASE_URL)
                 .append("/api/v4/projects/").append(idProject).append("/repository/branches").toString()
@@ -48,7 +52,7 @@ class GitFlow implements Serializable {
         return features;
     }
 
-    @NonCPS
+
     String getNextVersion(Integer idProject, String semVerType, String rcType) {
         def ultimaTag = this.getUltimaTag(idProject)
 
@@ -64,12 +68,6 @@ class GitFlow implements Serializable {
                 return version.incrementPreReleaseVersion();
             }
         }
-
-//        } else if (rcType != "PRODUCTION") {
-//            return ultimaTag.split(RC)[0]
-//        }
-//
-//        return incrementarVersao(ultimaTag, semVerType)
     }
 
     @NonCPS
