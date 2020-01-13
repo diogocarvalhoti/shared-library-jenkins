@@ -70,13 +70,13 @@ class GitFlow implements Serializable {
     }
 
     @NonCPS
-    String getNextVersion(Integer idProject, String semVerType, String rcType) {
-        def ultimaTag = this.getUltimaTag(idProject)
+    String getNextVersion(Integer idProject, String semVerType, String releaseType) {
+        def ultimaTag = this.getUltimaTagPorTipo(idProject)
 
-        if (BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(rcType)) {
+        if (BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(releaseType)) {
             return ultimaTag.split(RC)[0]
         } else {
-            if (BranchUtil.ReleaseTypes.INCREMENT_CANDIDATE.toString().equals(rcType)) {
+            if (BranchUtil.ReleaseTypes.INCREMENT_CANDIDATE.toString().equals(releaseType)) {
                 Version version = Version.valueOf(ultimaTag);
                 return version.incrementPreReleaseVersion();
             } else {
@@ -100,18 +100,34 @@ class GitFlow implements Serializable {
     }
 
     @NonCPS
-    private String getUltimaTag(Integer idProject) {
+    private String getUltimaTagPorTipo(Integer idProject, String releaseType = BranchUtil.ReleaseTypes.PRODUCTION.toString()) {
         String uri = new StringBuilder(this.BASE_URL)
                 .append("/api/v4/projects/").append(idProject)
                 .append("/repository/tags").append("?order_by=name").toString();
 
-        Map<String, String> params = new HashMap();
-        params.put("order_by", "name");
+        Map<String, String> params = new HashMap()
+        params.put("order_by", "name")
 
         List tags = GitRestClient.get(uri, this.PRIVATE_TOKEN)
 
         if (!tags.empty) {
-            Map tag = tags.get(0);
+            for (Map tag : tags) {
+                String name = tag.get("name")
+                if (BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(releaseType)) {
+                    if (name.contains(RC)) {
+                        continue
+                    } else {
+                        return name
+                    }
+                } else {
+                    if (name.contains(RC)) {
+                        return name
+                    } else {
+                        continue
+                    }
+                }
+            }
+
             return tag.get("name")
         }
         return "0.0.0"

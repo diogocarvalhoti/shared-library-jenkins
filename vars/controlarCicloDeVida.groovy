@@ -61,7 +61,7 @@ def call(args) {
         stage('Aplicando fluxo') {
             if (BranchUtil.Types.RELEASE.toString().equals(TIPO)) {
                 flowRelease(namespace, args)
-            } else if (BranchUtil.Types.FEATURE.toString().equals(TIPO) || BranchUtil.Types.HOTFIX.toString().equals(TIPO)) {
+            } else if (BranchUtil.Types.FEATURE.toString().equals(TIPO)) {
                 flowFeature(namespace)
             } else {
                 flowHotfix(namespace, args)
@@ -164,21 +164,24 @@ void flowHotfix(namespace, args) {
 
     def gitflow = new GitFlow()
     Integer idProject = gitflow.getIdProject(namespace)
-
+    println 'HOTFIX'
     if (BranchUtil.Actions.START.toString().equals(ACAO)) {
-        typeVersion = BranchUtil.VersionTypes.PATCH.toString()
-        releaseType = BranchUtil.ReleaseTypes.PRODUCTION.toString()
+
+        println 'START'
+        String typeVersion = BranchUtil.VersionTypes.PATCH.toString()
+        String releaseType = BranchUtil.ReleaseTypes.PRODUCTION.toString()
 
         def nextVersion = gitflow.getNextVersion(idProject, typeVersion, releaseType)
 
-        FEATURE_NAME = input(
-                id: 'userInput', message: 'Nome da feature',
-                parameters: [
-                        string(
-                                description: 'Nome da feature',
-                                name: 'Nome da feature'
-                        )
-                ])
+        println 'VERSION: '+ nextVersion
+//        FEATURE_NAME = input(
+//                id: 'userInput', message: 'Nome da feature',
+//                parameters: [
+//                        string(
+//                                description: 'Nome da feature',
+//                                name: 'Nome da feature'
+//                        )
+//                ])
         sshagent([
                 '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
         ]) {
@@ -186,12 +189,13 @@ void flowHotfix(namespace, args) {
             sh 'git checkout master'
             sh 'git flow init -d'
             sh 'git flow hotfix start ' + nextVersion
-            sh 'git flow hotfix publish hotfix/' + nextVersion
+            sh 'git flow hotfix publish '+ nextVersion
 
-            sh 'git branch -b hotfix/' + version + '/fabrica'
+            sh 'git branch -b hotfix/' + nextVersion + '/fabrica'
             sh 'git push'
         }
     } else {
+        println 'FINISH'
         String hotfixName = gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.HOTFIX.toString()).get(0);
         String version = hotfixName.replace("hotfix/")
 
