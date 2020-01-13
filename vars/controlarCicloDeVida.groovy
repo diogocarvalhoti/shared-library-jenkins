@@ -68,7 +68,7 @@ def call(args) {
     }
 }
 
-void flowRelease() {
+void flowRelease(namespace) {
     def RELEASE_TYPE
     def TYPE_VERSION
     RELEASE_TYPE = input message: 'Release Candidate:',
@@ -113,7 +113,7 @@ void flowRelease() {
     }
 }
 
-void flowFeature() {
+void flowFeature(namespace) {
     ACAO = input message: 'Escolha a ação:',
             parameters: [
                     choice(choices: BranchUtil.Actions.values().toList(),
