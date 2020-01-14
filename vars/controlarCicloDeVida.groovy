@@ -114,9 +114,11 @@ void flowRelease(namespace, args) {
     String RELEASE_TYPE = input message: 'Escolha o tipo de RELEASE:',
             parameters: [
                     choice(choices: BranchUtil.ReleaseTypes.values().toList(),
-                            description: 'Escolha a opção \"CANDIDATE\" para uma nova versão para o ambiente de homologação e \"INCREMENTE_CANDIDATE\" para incrementar uma release candidate aberta')
+                            description: 'Escolha a opção \"CANDIDATE\" para uma nova versão para o ambiente de homologação e \"INCREMENTE_CANDIDATE\" para incrementar uma release candidate aberta',
+                    name: 'releaseType')
             ]
 
+    println 'RELEASE_TYPEE: '+RELEASE_TYPE
     if (!BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(RELEASE_TYPE)) {
         TYPE_VERSION = input message: 'Escolha o tipo de versionamento:',
                 parameters: [
