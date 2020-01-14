@@ -77,12 +77,12 @@ void flowFeature(namespace) {
             ]
     if (BranchUtil.Types.FEATURE.toString().equals(TIPO)) {
         if (BranchUtil.Actions.START.toString().equals(ACAO)) {
-            FEATURE_NAME = input(
-                    id: 'userInput', message: 'Nome da feature',
+            NUMERO_REDMINE = input(
+                    id: 'userInput', message: 'Informe o número do Redmine',
                     parameters: [
                             string(
-                                    description: 'Nome da feature',
-                                    name: 'Nome da feature'
+                                    description: 'Número do Redmine',
+                                    name: 'Número do Redmine'
                             )
                     ])
             sshagent([
@@ -91,8 +91,8 @@ void flowFeature(namespace) {
                 sh 'git config --global http.sslVerify false'
                 sh 'git checkout develop'
                 sh 'git flow init -d'
-                sh 'git flow feature start ' + FEATURE_NAME + ' develop'
-                sh 'git flow feature publish ' + FEATURE_NAME
+                sh 'git flow feature start redmine-' + NUMERO_REDMINE + ' develop'
+                sh 'git flow feature publish ' + NUMERO_REDMINE
             }
         } else {
             def gitflow = new GitFlow()
