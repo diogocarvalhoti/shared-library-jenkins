@@ -1,10 +1,9 @@
 #!groovy
+import br.gov.mds.BranchUtil
 import br.gov.mds.GitFlow
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-
-import br.gov.mds.BranchUtil
 
 def validarParametros(args) {
     if (!args.gitRepositorySSH) {
@@ -113,10 +112,10 @@ void flowFeature(namespace) {
 void flowRelease(namespace, args) {
     def RELEASE_TYPE
     def TYPE_VERSION
-    RELEASE_TYPE = input message: 'Release Candidate:',
+    RELEASE_TYPE = input message: 'Escolha o tipo de RELEASE:',
             parameters: [
                     choice(choices: BranchUtil.ReleaseTypes.values().toList(),
-                            description: 'Escolha a opção de Release candidate, caso não se aplique, selecione \"NA\"', name: 'release_candidate')
+                            description: 'Escolha a opção \"CANDIDATE\" para uma nova versão para o ambiente de homologação \n e \"INCREMENTE_CANDIDATE\" para incrementar uma release candidate aberta')
             ]
 
     if (!BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(RELEASE_TYPE)) {
@@ -158,31 +157,19 @@ void flowRelease(namespace, args) {
 void flowHotfix(namespace, args) {
     ACAO = input message: 'Escolha a ação:',
             parameters: [
-                    choice(choices: BranchUtil.Actions.values().toList(),
+                    choice(choices: ['START', 'FINISH_FABRICA', 'FINISH'],
                             description: '', name: 'acao')
             ]
 
     def gitflow = new GitFlow()
     Integer idProject = gitflow.getIdProject(namespace)
-    println 'HOTFIX'
-    if (BranchUtil.Actions.START.toString().equals(ACAO)) {
 
-        println 'START'
+    if (BranchUtil.Actions.START.toString().equals(ACAO)) {
         String typeVersion = BranchUtil.VersionTypes.PATCH.toString()
 
         def ultimaTagProduction = gitflow.getUltimaTagPorTipo(idProject, BranchUtil.ReleaseTypes.PRODUCTION.toString())
-
         def nextVersion = gitflow.incrementarVersao(ultimaTagProduction, typeVersion)
 
-        println 'VERSION: ' + nextVersion
-//        FEATURE_NAME = input(
-//                id: 'userInput', message: 'Nome da feature',
-//                parameters: [
-//                        string(
-//                                description: 'Nome da feature',
-//                                name: 'Nome da feature'
-//                        )
-//                ])
         sshagent([
                 '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
         ]) {
@@ -195,8 +182,7 @@ void flowHotfix(namespace, args) {
             sh 'git checkout -b hotfix/' + nextVersion + '-fabrica'
             sh 'git push --set-upstream origin hotfix/' + nextVersion + '-fabrica'
         }
-    } else {
-        println 'FINISH'
+    } else if (BranchUtil.Actions.FINISH.toString().equals(ACAO)) {
         String hotfixName = gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.HOTFIX.toString()).get(0);
         String version = hotfixName.replace("hotfix/", "")
 
@@ -204,22 +190,27 @@ void flowHotfix(namespace, args) {
                 '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
         ]) {
             sh 'git config --global http.sslVerify false'
-            sh 'git checkout master'
-            sh 'git pull --all'
-            sh 'git flow init -d'
+            sh 'git checkout ' + hotfixName
 
             gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, version)
-
-            sh 'export GIT_MERGE_AUTOEDIT=no'
             sh 'git add .'
             sh 'git commit -m \"Versionando aplicação para a versão ' + version + '\"'
+            sh 'git push'
 
-            sh 'git flow hotfix finish -p -m \"Fechando versão hotfix \"' + version
+            sh 'git tag -a ' + version + ' -m \"Fechando versão ' + version + ' (hotfix)\"'
+            sh 'git checkout master'
+            sh 'git merge -X theirs ' + hotfixName
+            sh 'git checkout develop'
+            sh 'git merge -X theirs ' + hotfixName
+            sh 'git branch -D ' + hotfixName
 
-            sh 'unset GIT_MERGE_AUTOEDIT'
-            sh 'git branch -D ' + hotfixName + '-fabrica'
-
-//            sh 'git push'
+            sh 'git push --all origin'
+            sh 'git push origin --delete ' + hotfixName
+            sh 'git push origin --delete ' + hotfixName + '-fabrica'
+            sh 'git push origin ' + version
         }
+    } else {
+        String hotfixName = gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.HOTFIX.toString()).get(0);
+        gitflow.createMR(idProject, hotfixName + '-fabrica', hotfixName)
     }
 }
