@@ -118,8 +118,7 @@ void flowRelease(namespace, args) {
                     name: 'releaseType')
             ]
 
-    println 'RELEASE_TYPEE: '+RELEASE_TYPE
-    if (!BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(RELEASE_TYPE)) {
+    if (BranchUtil.ReleaseTypes.CANDIDATE.toString().equals(RELEASE_TYPE)) {
         TYPE_VERSION = input message: 'Escolha o tipo de versionamento:',
                 parameters: [
                         choice(choices: BranchUtil.VersionTypes.values().toList(),
