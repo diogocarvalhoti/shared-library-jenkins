@@ -81,7 +81,7 @@ void flowFeature(namespace) {
                     id: 'userInput', message: 'Informe o número do Redmine',
                     parameters: [
                             string(
-                                    description: 'Número do Redmine',
+                                    description: '',
                                     name: 'Número do Redmine'
                             )
                     ])
@@ -92,7 +92,7 @@ void flowFeature(namespace) {
                 sh 'git checkout develop'
                 sh 'git flow init -d'
                 sh 'git flow feature start redmine-' + NUMERO_REDMINE + ' develop'
-                sh 'git flow feature publish ' + NUMERO_REDMINE
+                sh 'git flow feature publish redmine-' + NUMERO_REDMINE
             }
         } else {
             def gitflow = new GitFlow()
