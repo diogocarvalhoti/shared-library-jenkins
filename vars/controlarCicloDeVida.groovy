@@ -14,7 +14,6 @@ def call(args) {
     args.linguagem = args.linguagem ?: 'JAVA'
     args.pathArtefato = args.pathArtefato ?: './pom.xml'
 
-
     node {
 
         stage('Checkout código fonte') {
@@ -70,7 +69,6 @@ def recuperarNamespace(repository) {
     }
     return ""
 }
-
 
 void flowFeature(namespace) {
     ACAO = input message: 'Escolha a ação:',
@@ -209,7 +207,6 @@ void flowHotfix(namespace, args) {
 
             sh 'git push --all origin'
             sh 'git push origin --delete ' + hotfixName
-            sh 'git push origin --delete ' + hotfixName + '-fabrica'
             sh 'git push origin ' + version
         }
     } else {
