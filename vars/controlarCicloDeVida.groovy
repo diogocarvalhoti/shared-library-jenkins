@@ -14,7 +14,7 @@ def call(args) {
     args.linguagem = args.linguagem ?: 'JAVA'
     args.pathArtefato = args.pathArtefato ?: './pom.xml'
 
-    agent none
+    agent any
 
     node {
 
