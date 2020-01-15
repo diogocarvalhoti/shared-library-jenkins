@@ -14,9 +14,9 @@ def call(args) {
     args.linguagem = args.linguagem ?: 'JAVA'
     args.pathArtefato = args.pathArtefato ?: './pom.xml'
 
-    agent any
+    def label = "maven-${UUID.randomUUID().toString()}"
 
-    node {
+    node(label){
 
         stage('Checkout código fonte') {
             cleanWs()
