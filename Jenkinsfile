@@ -3,6 +3,7 @@ import GitFlow
 import BranchUtil
 
 node {
+
     stage('Checkout') {
        cleanWs()
        checkout([$class: 'GitSCM', branches: [[name: '*/develop']], 

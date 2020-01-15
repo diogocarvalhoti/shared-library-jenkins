@@ -5,6 +5,57 @@ import br.gov.mds.pipeline.GitFlow
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+def call(args) {
+
+    validarParametros(args)
+
+    def namespace = recuperarNamespace(args.gitRepositorySSH)
+
+    args.linguagem = args.linguagem ?: 'JAVA'
+    args.pathArtefato = args.pathArtefato ?: './pom.xml'
+
+    pipeline {
+        agent none
+        node {
+
+            agent none
+
+            stage('Checkout código fonte') {
+                cleanWs()
+                checkout([$class                           : 'GitSCM', branches: [[name: '*/develop']],
+                          doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [
+                        [
+                                credentialsId: '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f',
+                                refspec      : '+refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*',
+                                url          : args.gitRepositorySSH]
+                ]]
+                )
+
+                sh 'git config --global user.email \"gcm_cgsi@cidadania.gov.br\"'
+                sh 'git config --global user.name \"Gerência de Configuração e Mudança\"'
+            }
+
+            stage('Escolha o tipo de Branch \n FEATURE/HOTFIX/RELEASE') {
+                TIPO = input message: 'Escolha o tipo de branch:',
+                        parameters: [
+                                choice(choices: BranchUtil.Types.values().toList(),
+                                        description: '', name: 'tipo')
+                        ]
+            }
+
+            stage('Aplicando fluxo') {
+                if (BranchUtil.Types.RELEASE.toString().equals(TIPO)) {
+                    flowRelease(namespace, args)
+                } else if (BranchUtil.Types.FEATURE.toString().equals(TIPO)) {
+                    flowFeature(namespace)
+                } else {
+                    flowHotfix(namespace, args)
+                }
+            }
+        }
+    }
+}
+
 def validarParametros(args) {
     if (!args.gitRepositorySSH) {
         println "O parâmetro gitRepositorySSH é obrigatório"
@@ -24,52 +75,6 @@ def recuperarNamespace(repository) {
     return ""
 }
 
-def call(args) {
-
-    validarParametros(args)
-
-    def namespace = recuperarNamespace(args.gitRepositorySSH)
-
-    args.linguagem = args.linguagem ?: 'JAVA'
-    args.pathArtefato = args.pathArtefato ?: './pom.xml'
-    node {
-
-        agent none
-
-        stage('Checkout código fonte') {
-            cleanWs()
-            checkout([$class                           : 'GitSCM', branches: [[name: '*/develop']],
-                      doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [
-                    [
-                            credentialsId: '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f',
-                            refspec      : '+refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*',
-                            url          : args.gitRepositorySSH]
-            ]]
-            )
-
-            sh 'git config --global user.email \"gcm_cgsi@cidadania.gov.br\"'
-            sh 'git config --global user.name \"Gerência de Configuração e Mudança\"'
-        }
-
-        stage('Escolha o tipo de Branch \n FEATURE/HOTFIX/RELEASE') {
-            TIPO = input message: 'Escolha o tipo de branch:',
-                    parameters: [
-                            choice(choices: BranchUtil.Types.values().toList(),
-                                    description: '', name: 'tipo')
-                    ]
-        }
-
-        stage('Aplicando fluxo') {
-            if (BranchUtil.Types.RELEASE.toString().equals(TIPO)) {
-                flowRelease(namespace, args)
-            } else if (BranchUtil.Types.FEATURE.toString().equals(TIPO)) {
-                flowFeature(namespace)
-            } else {
-                flowHotfix(namespace, args)
-            }
-        }
-    }
-}
 
 void flowFeature(namespace) {
     ACAO = input message: 'Escolha a ação:',
@@ -117,7 +122,7 @@ void flowRelease(namespace, args) {
             parameters: [
                     choice(choices: BranchUtil.ReleaseTypes.values().toList(),
                             description: 'Escolha a opção \"CANDIDATE\" para uma nova versão para o ambiente de homologação e \"INCREMENTE_CANDIDATE\" para incrementar uma release candidate aberta',
-                    name: 'releaseType')
+                            name: 'releaseType')
             ]
 
     if (BranchUtil.ReleaseTypes.CANDIDATE.toString().equals(RELEASE_TYPE)) {
