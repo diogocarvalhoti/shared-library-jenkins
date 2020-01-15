@@ -1,6 +1,6 @@
 @Library("shared-library-jenkins@master")
-import br.gov.mds.GitFlow
-import br.gov.mds.BranchUtil
+import GitFlow
+import BranchUtil
 
 node {
     stage('Checkout') {

@@ -1,6 +1,6 @@
 #!groovy
-import br.gov.mds.BranchUtil
-import br.gov.mds.GitFlow
+import br.gov.mds.pipeline.BranchUtil
+import br.gov.mds.pipeline.GitFlow
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -32,8 +32,10 @@ def call(args) {
 
     args.linguagem = args.linguagem ?: 'JAVA'
     args.pathArtefato = args.pathArtefato ?: './pom.xml'
-
     node {
+
+        agent none
+
         stage('Checkout código fonte') {
             cleanWs()
             checkout([$class                           : 'GitSCM', branches: [[name: '*/develop']],

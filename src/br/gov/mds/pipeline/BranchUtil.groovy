@@ -1,4 +1,4 @@
-package br.gov.mds
+package br.gov.mds.pipeline
 
 class BranchUtil {
 
