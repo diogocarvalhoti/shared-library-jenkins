@@ -16,9 +16,8 @@ def call(args) {
 
     pipeline {
         agent none
-        node {
 
-            agent none
+        node {
 
             stage('Checkout código fonte') {
                 cleanWs()
