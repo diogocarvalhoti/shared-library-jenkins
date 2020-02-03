@@ -91,9 +91,12 @@ void flowFeature(namespace) {
             ]) {
                 sh 'git config --global http.sslVerify false'
                 sh 'git checkout develop'
-                sh 'git flow init -d'
-                sh 'git flow feature start redmine-' + NUMERO_REDMINE + ' develop'
-                sh 'git flow feature publish redmine-' + NUMERO_REDMINE
+                sh 'git checkout -b feature/redmine-' + NUMERO_REDMINE
+                sh 'git push origin feature/redmine-' + NUMERO_REDMINE
+
+//                sh 'git flow init -d'
+//                sh 'git flow feature start redmine-' + NUMERO_REDMINE + ' develop'
+//                sh 'git flow feature publish redmine-' + NUMERO_REDMINE
             }
         } else {
             def gitflow = new GitFlow()
@@ -135,8 +138,10 @@ void flowRelease(namespace, args) {
     ]) {
         sh 'git config --global http.sslVerify false'
         sh 'git checkout develop'
-        sh 'git flow init -d'
-        sh 'git flow release start ' + nextVersion
+        sh 'git checkout -b release/' + nextVersion
+
+//        sh 'git flow init -d'
+//        sh 'git flow release start ' + nextVersion
 
         gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, nextVersion)
 
@@ -145,13 +150,22 @@ void flowRelease(namespace, args) {
         sh 'git commit -m \"Versionando aplicação para a versão ' + nextVersion + '\"'
 
         if (BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(RELEASE_TYPE)) {
-            sh 'git flow release finish ' + nextVersion + ' -p -m \"Fechando versão \"'
+            //            sh 'git flow release finish ' + nextVersion + ' --pushdevelop --pushtag -m \"Fechando versão \"'
+            sh 'git checkout master'
+            sh 'git merge release/' + nextVersion
+            sh 'git checkout develop'
+            sh 'git merge release/' + nextVersion
+            sh 'git branch -D release/' + nextVersion
+
         } else {
-            sh 'git flow release finish ' + nextVersion + ' --pushdevelop --pushtag -m \"Fechando versão \"'
+            //            sh 'git flow release finish ' + nextVersion + ' -p -m \"Fechando versão \"'
+            sh 'git checkout develop'
+            sh 'git merge release/' + nextVersion
+            sh 'git branch -D release/' + nextVersion
         }
 
         sh 'unset GIT_MERGE_AUTOEDIT'
-        sh 'git push'
+        sh 'git push --all origin'
     }
 }
 

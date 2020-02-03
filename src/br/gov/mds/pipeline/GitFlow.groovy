@@ -127,7 +127,7 @@ class GitFlow implements Serializable {
             steps.sh "mv ${pathArtefato}.new ${pathArtefato}"
         } else if ("NODE" == linguagem) {
             steps.nodejs('NodeJS - 10.x') {
-                steps.sh 'npm --prefix ' + pathArtefato + ' version ' + nextVersion + ' --force'
+                steps.sh 'npm --prefix ' + pathArtefato + ' version ' + nextVersion + ' --force --allow-same-version'
             }
         }
         return steps
