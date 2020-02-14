@@ -1,7 +1,6 @@
 package br.gov.mds.pipeline
 
 import com.cloudbees.groovy.cps.NonCPS
-
 @Grab('com.github.zafarkhaja:java-semver:0.9.0')
 import com.github.zafarkhaja.semver.Version
 
@@ -127,15 +126,11 @@ class GitFlow implements Serializable {
             steps.sh "mv ${pathArtefato}.new ${pathArtefato}"
         } else if ("NODE" == linguagem) {
             steps.nodejs('NodeJS - 10.x') {
-                steps.sh 'npm --prefix ' + pathArtefato + ' version ' + nextVersion + ' --force --allow-same-version'
+                def jsonfile = steps.readJSON file: '' + pathArtefato + '/package.json'
+                jsonfile['version'] = "${nextVersion}".inspect()
+                steps.writeJSON file: '' + pathArtefato + '/package.json', json: jsonfile, pretty: 4
             }
         }
         return steps
     }
-
-//	static void main(String[] args) {
-//		def local = new GitFlow()
-//		def next = local.getNextVersion(560, "MINOR", true)
-//		println next
-//	}
 }

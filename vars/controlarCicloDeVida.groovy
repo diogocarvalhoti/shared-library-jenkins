@@ -149,23 +149,20 @@ void flowRelease(namespace, args) {
         sh 'git add .'
         sh 'git commit -m \"Versionando aplicação para a versão ' + nextVersion + '\"'
 
+        sh 'git checkout develop'
+        sh 'git merge release/' + nextVersion
+
         if (BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(RELEASE_TYPE)) {
             //            sh 'git flow release finish ' + nextVersion + ' --pushdevelop --pushtag -m \"Fechando versão \"'
             sh 'git checkout master'
             sh 'git merge release/' + nextVersion
-            sh 'git checkout develop'
-            sh 'git merge release/' + nextVersion
-            sh 'git branch -D release/' + nextVersion
-
-        } else {
-            //            sh 'git flow release finish ' + nextVersion + ' -p -m \"Fechando versão \"'
-            sh 'git checkout develop'
-            sh 'git merge release/' + nextVersion
-            sh 'git branch -D release/' + nextVersion
         }
 
         sh 'unset GIT_MERGE_AUTOEDIT'
+        sh 'git branch -D release/' + nextVersion
+        sh 'git tag -a ' + nextVersion + ' -m \"Fechando versão ' + nextVersion + '\"'
         sh 'git push --all origin'
+        sh 'git push --tags origin '
     }
 }
 
@@ -190,12 +187,15 @@ void flowHotfix(namespace, args) {
         ]) {
             sh 'git config --global http.sslVerify false'
             sh 'git checkout master'
-            sh 'git flow init -d'
-            sh 'git flow hotfix start ' + nextVersion
-            sh 'git flow hotfix publish ' + nextVersion
-
+            sh 'git checkout -b hotfix/' + nextVersion
             sh 'git checkout -b hotfix/' + nextVersion + '-fabrica'
-            sh 'git push --set-upstream origin hotfix/' + nextVersion + '-fabrica'
+            sh 'git push --all'
+
+//            sh 'git flow init -d'
+//            sh 'git flow hotfix start ' + nextVersion
+//            sh 'git flow hotfix publish ' + nextVersion
+
+
         }
     } else if (BranchUtil.Actions.FINISH.toString().equals(ACAO)) {
         String hotfixName = gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.HOTFIX.toString()).get(0);
