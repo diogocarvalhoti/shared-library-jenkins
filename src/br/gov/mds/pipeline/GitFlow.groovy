@@ -116,21 +116,33 @@ class GitFlow implements Serializable {
         return "0.0.0"
     }
 
-    def versionarArtefato(steps, linguagem, pathArtefato, nextVersion) {
-        if ("JAVA" == linguagem) {
+    def versionarArtefato(steps, VersionarArtefatoDTO versionarArtefatoDTO) {
+        if ("JAVA" == versionarArtefatoDTO.getLinguagemBackend()) {
             steps.withMaven(maven: 'Maven 3.6.2') {
-                steps.sh "mvn -f ${pathArtefato} versions:set -DgenerateBackupPoms=false -DnewVersion=${nextVersion} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
+                steps.sh "mvn -f ${versionarArtefatoDTO.getPathArtefatoBackend()} versions:set -DgenerateBackupPoms=false -DnewVersion=${versionarArtefatoDTO.getVersao()} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
             }
-        } else if ("PHP" == linguagem) {
-            steps.sh "awk -F\"=\" -v OFS=\'=\' \'/APP_VERSION/{\$2=\"${nextVersion}\";print;next}1\' ${pathArtefato} > ${pathArtefato}.new"
-            steps.sh "mv ${pathArtefato}.new ${pathArtefato}"
-        } else if ("NODE" == linguagem) {
+        } else if ("PHP" == versionarArtefatoDTO.getLinguagemBackend()) {
+            steps.sh "awk -F\"=\" -v OFS=\'=\' \'/APP_VERSION/{\$2=\"${versionarArtefatoDTO.getPathArtefatoFrontend()}\";print;next}1\' ${versionarArtefatoDTO.getPathArtefatoBackend()} > ${versionarArtefatoDTO.getPathArtefatoBackend()}.new"
+            steps.sh "mv ${versionarArtefatoDTO.getPathArtefatoBackend()}.new ${versionarArtefatoDTO.getPathArtefatoBackend()}"
+        }
+        if ("NODE" == versionarArtefatoDTO.getLinguagemFrontend()) {
             steps.nodejs('NodeJS - 10.x') {
-                def jsonfile = steps.readJSON file: '' + pathArtefato + '/package.json'
-                jsonfile['version'] = "${nextVersion}".inspect()
-                steps.writeJSON file: '' + pathArtefato + '/package.json', json: jsonfile, pretty: 4
+//                steps.env.NODEJS_HOME = '\"${tool NodeJS - 10.x}\"'
+//                steps.env.PATH= '\"${env.NODEJS_HOME}:${env.PATH}\"'
+//                steps.echo '${env.PATH}'
+
+                def jsonfile = steps.readJSON file: ''+ versionarArtefatoDTO.getPathArtefatoFrontend()
+                jsonfile['version'] = "${versionarArtefatoDTO.getVersao()}".inspect()
+                steps.writeJSON file: '' + versionarArtefatoDTO.getPathArtefatoFrontend(), json: jsonfile , pretty: 4
+//                steps.sh 'npm --prefix ' + pathArtefato + ' version ' + nextVersion + ' --force --allow-same-version'
             }
         }
         return steps
     }
+
+//	static void main(String[] args) {
+//		def local = new GitFlow()
+//		def next = local.getNextVersion(560, "MINOR", true)
+//		println next
+//	}
 }

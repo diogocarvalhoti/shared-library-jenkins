@@ -1,27 +1,35 @@
 #!groovy
 import br.gov.mds.pipeline.BranchUtil
 import br.gov.mds.pipeline.GitFlow
+import br.gov.mds.pipeline.VersionarArtefatoDTO
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 def call(args) {
 
+    args.linguagemBackend = args.linguagemBackend ?: 'JAVA'
+    args.linguagemFrontend = args.linguagemFrontend ?: 'NODE'
+    args.pathArtefato = args.pathArtefato ?: './pom.xml'
+
+    def GITLAB_LOGIN_SSH = '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+//    def GITLAB_LOGIN_SSH = 'gitlab-login-ssh'
+
+    def label = "release-${UUID.randomUUID().toString()}"
+
+//    podTemplate(label: label, serviceAccount: 'jenkins') {
+
     validarParametros(args)
 
     def namespace = recuperarNamespace(args.gitRepositorySSH)
 
-    args.linguagem = args.linguagem ?: 'JAVA'
-    args.pathArtefato = args.pathArtefato ?: './pom.xml'
-
-    node {
-
+    node(label) {
         stage('Checkout código fonte') {
             cleanWs()
             checkout([$class                           : 'GitSCM', branches: [[name: '*/develop']],
                       doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [
                     [
-                            credentialsId: '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f',
+                            credentialsId: GITLAB_LOGIN_SSH,
                             refspec      : '+refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*',
                             url          : args.gitRepositorySSH]
             ]]
@@ -49,6 +57,7 @@ def call(args) {
             }
         }
     }
+//    }
 }
 
 def validarParametros(args) {
@@ -87,7 +96,7 @@ void flowFeature(namespace) {
                             )
                     ])
             sshagent([
-                    '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+                    GITLAB_LOGIN_SSH
             ]) {
                 sh 'git config --global http.sslVerify false'
                 sh 'git checkout develop'
@@ -134,7 +143,7 @@ void flowRelease(namespace, args) {
     def nextVersion = gitflow.getNextVersion(idProject, TYPE_VERSION, RELEASE_TYPE)
 
     sshagent([
-            '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+            GITLAB_LOGIN_SSH
     ]) {
         sh 'git config --global http.sslVerify false'
         sh 'git checkout develop'
@@ -143,7 +152,8 @@ void flowRelease(namespace, args) {
 //        sh 'git flow init -d'
 //        sh 'git flow release start ' + nextVersion
 
-        gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, nextVersion)
+        VersionarArtefatoDTO versionarArtefatoDTO = preencherVersionarArtefatoDTO(args, nextVersion);
+        gitflow.versionarArtefato(this, versionarArtefatoDTO)
 
         sh 'export GIT_MERGE_AUTOEDIT=no'
         sh 'git add .'
@@ -183,7 +193,7 @@ void flowHotfix(namespace, args) {
         def nextVersion = gitflow.incrementarVersao(ultimaTagProduction, typeVersion)
 
         sshagent([
-                '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+                GITLAB_LOGIN_SSH
         ]) {
             sh 'git config --global http.sslVerify false'
             sh 'git checkout master'
@@ -202,12 +212,14 @@ void flowHotfix(namespace, args) {
         String version = hotfixName.replace("hotfix/", "")
 
         sshagent([
-                '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+                GITLAB_LOGIN_SSH
         ]) {
             sh 'git config --global http.sslVerify false'
             sh 'git checkout ' + hotfixName
 
-            gitflow.versionarArtefato(this, args.linguagem, args.pathArtefato, version)
+            VersionarArtefatoDTO versionarArtefatoDTO = preencherVersionarArtefatoDTO(args, nextVersion);
+            gitflow.versionarArtefato(this, versionarArtefatoDTO);
+
             sh 'git add .'
             sh 'git commit -m \"Versionando aplicação para a versão ' + version + '\"'
             sh 'git push'
@@ -227,4 +239,17 @@ void flowHotfix(namespace, args) {
         String hotfixName = gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.HOTFIX.toString()).get(0);
         gitflow.createMR(idProject, hotfixName + '-fabrica', hotfixName)
     }
+}
+
+VersionarArtefatoDTO preencherVersionarArtefatoDTO(args, String versao) {
+    VersionarArtefatoDTO dto = new VersionarArtefatoDTO();
+    dto.setVersao(versao);
+
+    dto.setLinguagemBackend(args.linguagemBackend);
+    dto.setPathArtefatoBackend(args.pathArtefatoBackend);
+
+    dto.setLinguagemFrontend(args.linguagemFrontend);
+    dto.setPathArtefatoFrontend(args.pathArtefatoFrontend);
+
+    return dto;
 }
