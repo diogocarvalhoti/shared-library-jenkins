@@ -122,7 +122,7 @@ class GitFlow implements Serializable {
                 steps.sh "mvn -f ${versionarArtefatoDTO.getPathArtefatoBackend()} versions:set -DgenerateBackupPoms=false -DnewVersion=${versionarArtefatoDTO.getVersao()} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
             }
         } else if (versionarArtefatoDTO.getPathArtefatoBackend().toLowerCase().contains(".env")) {
-            steps.sh "awk -F\"=\" -v OFS=\'=\' \'/APP_VERSION/{\$2=\"${versionarArtefatoDTO.getPathArtefatoFrontend()}\";print;next}1\' ${versionarArtefatoDTO.getPathArtefatoBackend()} > ${versionarArtefatoDTO.getPathArtefatoBackend()}.new"
+            steps.sh "awk -F\"=\" -v OFS=\'=\' \'/APP_VERSION/{\$2=\"${versionarArtefatoDTO.getVersao()}\";print;next}1\' ${versionarArtefatoDTO.getPathArtefatoBackend()} > ${versionarArtefatoDTO.getPathArtefatoBackend()}.new"
             steps.sh "mv ${versionarArtefatoDTO.getPathArtefatoBackend()}.new ${versionarArtefatoDTO.getPathArtefatoBackend()}"
         }
 

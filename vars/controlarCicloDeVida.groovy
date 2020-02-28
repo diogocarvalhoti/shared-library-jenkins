@@ -10,7 +10,7 @@ def call(args) {
 
     validarParametros(args)
 
-    def GITLAB_LOGIN_SSH = '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+    GITLAB_LOGIN_SSH = '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
 //    def GITLAB_LOGIN_SSH = 'gitlab-login-ssh'
 
     def label = "release-${UUID.randomUUID().toString()}"
