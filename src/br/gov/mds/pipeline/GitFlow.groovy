@@ -28,7 +28,7 @@ class GitFlow implements Serializable {
         params.put("remove_source_branch", "true");
         params.put("source_branch", sourceBranch);
         params.put("target_branch", targetBranch);
-        params.put("title", "Merge Request solicitado através da execução do job " + buildNumber + " para branch: " + sourceBranch);
+        params.put("title", "Merge Request solicitado através da execução do job " + buildNumber + " da branch: " + sourceBranch);
 
         String uri = new StringBuilder(this.BASE_URL)
                 .append("/api/v4/projects/").append(idProject).append("/merge_requests").toString();
