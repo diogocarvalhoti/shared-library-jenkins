@@ -3,6 +3,8 @@ package br.gov.mds.pipeline
 import com.cloudbees.groovy.cps.NonCPS
 @Grab('com.github.zafarkhaja:java-semver:0.9.0')
 import com.github.zafarkhaja.semver.Version
+@Grab('com.github.zafarkhaja:java-semver:0.9.0')
+import com.github.zafarkhaja.semver.Version
 
 class GitFlow implements Serializable {
 
@@ -21,12 +23,12 @@ class GitFlow implements Serializable {
     }
 
     @NonCPS
-    String createMR(Integer idProject, String sourceBranch, String targetBranch = "develop") {
+    String createMR(Integer idProject, String buildNumber, String sourceBranch, String targetBranch = "develop") {
         Map<String, String> params = new HashMap();
         params.put("remove_source_branch", "true");
         params.put("source_branch", sourceBranch);
         params.put("target_branch", targetBranch);
-        params.put("title", "Merge Request da branch: " + sourceBranch);
+        params.put("title", "Merge Request solicitado através da execução do job " + buildNumber + " para branch: " + sourceBranch);
 
         String uri = new StringBuilder(this.BASE_URL)
                 .append("/api/v4/projects/").append(idProject).append("/merge_requests").toString();

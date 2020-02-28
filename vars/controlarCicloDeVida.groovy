@@ -11,6 +11,7 @@ def call(args) {
     validarParametros(args)
 
     GITLAB_LOGIN_SSH = '3eaff500-4fdb-46ac-9abb-7a1fbbd88f5f'
+    BUILD_NUMBER = "${BUILD_NUMBER}"
 //    def GITLAB_LOGIN_SSH = 'gitlab-login-ssh'
 
     def label = "release-${UUID.randomUUID().toString()}"
@@ -18,11 +19,10 @@ def call(args) {
 //    podTemplate(label: label, serviceAccount: 'jenkins') {
 
 
-
     def namespace = recuperarNamespace(args.gitRepositorySSH)
 
 //    node(label) {
-    node(){
+    node() {
         stage('Checkout código fonte') {
             cleanWs()
             checkout([$class                           : 'GitSCM', branches: [[name: '*/develop']],
@@ -119,7 +119,7 @@ void flowFeature(namespace) {
                                     description: '', name: 'feature')
                     ]
 
-            gitflow.createMR(idProject, FEATURE_NAME)
+            gitflow.createMR(idProject, BUILD_NUMBER, FEATURE_NAME)
         }
     }
 }
@@ -241,6 +241,6 @@ void flowHotfix(namespace, args) {
         }
     } else {
         String hotfixName = gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.HOTFIX.toString()).get(0);
-        gitflow.createMR(idProject, hotfixName + '-fabrica', hotfixName)
+        gitflow.createMR(idProject, BUILD_NUMBER, hotfixName + '-fabrica', hotfixName)
     }
 }
