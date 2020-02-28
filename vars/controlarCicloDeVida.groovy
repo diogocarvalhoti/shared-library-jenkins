@@ -21,7 +21,8 @@ def call(args) {
 
     def namespace = recuperarNamespace(args.gitRepositorySSH)
 
-    node(label) {
+//    node(label) {
+    node(){
         stage('Checkout código fonte') {
             cleanWs()
             checkout([$class                           : 'GitSCM', branches: [[name: '*/develop']],
