@@ -1,7 +1,6 @@
 #!groovy
 import br.gov.mds.pipeline.BranchUtil
 import br.gov.mds.pipeline.GitFlow
-import br.gov.mds.pipeline.VersionarArtefatoDTO
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -104,10 +103,6 @@ void flowFeature(namespace) {
                 sh 'git checkout develop'
                 sh 'git checkout -b feature/redmine-' + NUMERO_REDMINE
                 sh 'git push origin feature/redmine-' + NUMERO_REDMINE
-
-//                sh 'git flow init -d'
-//                sh 'git flow feature start redmine-' + NUMERO_REDMINE + ' develop'
-//                sh 'git flow feature publish redmine-' + NUMERO_REDMINE
             }
         } else {
             def gitflow = new GitFlow()
@@ -151,12 +146,7 @@ void flowRelease(namespace, args) {
         sh 'git checkout develop'
         sh 'git checkout -b release/' + nextVersion
 
-//        sh 'git flow init -d'
-//        sh 'git flow release start ' + nextVersion
-
-        VersionarArtefatoDTO versionarArtefatoDTO =
-                new VersionarArtefatoDTO(nextVersion, args.pathArtefatoBackend, args.pathArtefatoFrontend)
-        gitflow.versionarArtefato(this, versionarArtefatoDTO)
+        versionarArtefatos(gitflow, args, nextVersion);
 
         sh 'export GIT_MERGE_AUTOEDIT=no'
         sh 'git add .'
@@ -166,7 +156,6 @@ void flowRelease(namespace, args) {
         sh 'git merge release/' + nextVersion
 
         if (BranchUtil.ReleaseTypes.PRODUCTION.toString().equals(RELEASE_TYPE)) {
-            //            sh 'git flow release finish ' + nextVersion + ' --pushdevelop --pushtag -m \"Fechando versão \"'
             sh 'git checkout master'
             sh 'git merge release/' + nextVersion
         }
@@ -176,6 +165,15 @@ void flowRelease(namespace, args) {
         sh 'git tag -a ' + nextVersion + ' -m \"Fechando versão ' + nextVersion + '\"'
         sh 'git push --all origin'
         sh 'git push --tags origin '
+    }
+}
+
+void versionarArtefatos(GitFlow gitFlow, args, String nextVersion) {
+    if (!args.pathArtefatoBackend) {
+        gitFlow.versionarArtefato(this, args.pathArtefatoBackend, nextVersion)
+    }
+    if (!args.pathArtefatoFrontend) {
+        gitFlow.versionarArtefato(this, args.pathArtefatoFrontend, nextVersion)
     }
 }
 
@@ -203,12 +201,6 @@ void flowHotfix(namespace, args) {
             sh 'git checkout -b hotfix/' + nextVersion
             sh 'git checkout -b hotfix/' + nextVersion + '-fabrica'
             sh 'git push --all'
-
-//            sh 'git flow init -d'
-//            sh 'git flow hotfix start ' + nextVersion
-//            sh 'git flow hotfix publish ' + nextVersion
-
-
         }
     } else if (BranchUtil.Actions.FINISH.toString().equals(ACAO)) {
         String hotfixName = gitflow.getBranchesPorTipo(idProject, BranchUtil.Types.HOTFIX.toString()).get(0);
@@ -220,9 +212,7 @@ void flowHotfix(namespace, args) {
             sh 'git config --global http.sslVerify false'
             sh 'git checkout ' + hotfixName
 
-            VersionarArtefatoDTO versionarArtefatoDTO =
-                    new VersionarArtefatoDTO(version, args.pathArtefatoBackend, args.pathArtefatoFrontend)
-            gitflow.versionarArtefato(this, versionarArtefatoDTO);
+            versionarArtefatos(gitflow, args, version)
 
             sh 'git add .'
             sh 'git commit -m \"Versionando aplicação para a versão ' + version + '\"'

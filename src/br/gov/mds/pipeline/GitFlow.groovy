@@ -3,8 +3,6 @@ package br.gov.mds.pipeline
 import com.cloudbees.groovy.cps.NonCPS
 @Grab('com.github.zafarkhaja:java-semver:0.9.0')
 import com.github.zafarkhaja.semver.Version
-@Grab('com.github.zafarkhaja:java-semver:0.9.0')
-import com.github.zafarkhaja.semver.Version
 
 class GitFlow implements Serializable {
 
@@ -118,20 +116,16 @@ class GitFlow implements Serializable {
         return "0.0.0"
     }
 
-    def versionarArtefato(steps, VersionarArtefatoDTO versionarArtefatoDTO) {
-        if (versionarArtefatoDTO.getPathArtefatoBackend().toLowerCase().endsWith("pom.xml")) {
+    def versionarArtefato(steps, String pathArtefato, String versao) {
+        if (pathArtefato.toLowerCase().endsWith("pom.xml")) {
             steps.withMaven(maven: 'Maven 3.6.2') {
-                steps.sh "mvn -f ${versionarArtefatoDTO.getPathArtefatoBackend()} versions:set -DgenerateBackupPoms=false -DnewVersion=${versionarArtefatoDTO.getVersao()} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
+                steps.sh "mvn -f ${pathArtefato} versions:set -DgenerateBackupPoms=false -DnewVersion=${versao} -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
             }
-        } else if (versionarArtefatoDTO.getPathArtefatoBackend().toLowerCase().contains(".env")) {
-            steps.sh "awk -F\"=\" -v OFS=\'=\' \'/APP_VERSION/{\$2=\"${versionarArtefatoDTO.getVersao()}\";print;next}1\' ${versionarArtefatoDTO.getPathArtefatoBackend()} > ${versionarArtefatoDTO.getPathArtefatoBackend()}.new"
-            steps.sh "mv ${versionarArtefatoDTO.getPathArtefatoBackend()}.new ${versionarArtefatoDTO.getPathArtefatoBackend()}"
         }
-
-        if (versionarArtefatoDTO.getPathArtefatoFrontend().toLowerCase().endsWith("package.json")) {
-            def jsonfile = steps.readJSON file: '' + versionarArtefatoDTO.getPathArtefatoFrontend()
-            jsonfile['version'] = "${versionarArtefatoDTO.getVersao()}".inspect()
-            steps.writeJSON file: '' + versionarArtefatoDTO.getPathArtefatoFrontend(), json: jsonfile, pretty: 4
+        if (pathArtefato.toLowerCase().endsWith(".json")) {
+            def jsonfile = steps.readJSON file: '' + pathArtefato
+            jsonfile['version'] = "${versao}".inspect()
+            steps.writeJSON file: '' + pathArtefato, json: jsonfile, pretty: 4
         }
         return steps
     }
