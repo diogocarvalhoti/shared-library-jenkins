@@ -84,14 +84,7 @@ class GitFlow implements Serializable {
 
     @NonCPS
     String getUltimaTagPorTipo(Integer idProject, String releaseType = null) {
-        String uri = new StringBuilder(this.BASE_URL)
-                .append("/api/v4/projects/").append(idProject)
-                .append("/repository/tags").append("?order_by=name").toString();
-
-        Map<String, String> params = new HashMap()
-        params.put("order_by", "name")
-
-        List tags = GitRestClient.get(uri, this.PRIVATE_TOKEN)
+        List tags = getTags(idProject)
 
         if (!tags.empty) {
             for (Map tag : tags) {
@@ -114,6 +107,19 @@ class GitFlow implements Serializable {
             }
         }
         return "0.0.0"
+    }
+
+    @NonCPS
+    List getTags(int idProject) {
+        String uri = new StringBuilder(this.BASE_URL)
+                .append("/api/v4/projects/").append(idProject)
+                .append("/repository/tags").append("?order_by=name").toString();
+
+        Map<String, String> params = new HashMap()
+        params.put("order_by", "name")
+
+        List tags = GitRestClient.get(uri, this.PRIVATE_TOKEN)
+        tags
     }
 
     def versionarArtefato(steps, String pathArtefato, String versao) {
