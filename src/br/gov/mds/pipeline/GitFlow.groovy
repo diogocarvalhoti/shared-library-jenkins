@@ -119,7 +119,12 @@ class GitFlow implements Serializable {
         params.put("order_by", "name")
 
         List tags = GitRestClient.get(uri, this.PRIVATE_TOKEN)
-        tags
+        List tagsReturn = new ArrayList()
+
+        for (Map tag : tags) {
+            tagsReturn.add(tag.get("name"));
+        }
+        return tagsReturn;
     }
 
     def versionarArtefato(steps, String pathArtefato, String versao) {
