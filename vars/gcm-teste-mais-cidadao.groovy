@@ -25,9 +25,8 @@ def call(args) {
             ]]
             )
 
-//            git credentialsId: GITLAB_LOGIN_SSH, url: 'http://sugitpd02.mds.net/gcm_cgsi/municipio-mais-cidadao.git'
-//            sh 'git config --global user.email \"gcm_cgsi@cidadania.gov.br\"'
-//            sh 'git config --global user.name \"Gerência de Configuração e Mudança\"'
+            sh 'git config --global user.email \"gcm_cgsi@cidadania.gov.br\"'
+            sh 'git config --global user.name \"Gerência de Configuração e Mudança\"'
         }
         stage('Listar Tags') {
             namespace = recuperarNamespace(args.gitRepositorySSH)
